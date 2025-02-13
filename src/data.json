@@ -1,0 +1,251 @@
+{
+    "id": "",
+    "homeTeam": "Totty United",
+    "awayTeam": "Macclesfield",
+    "homeScore": 6,
+    "awayScore": 1,
+    "segments": [
+        {
+            "id": "",
+            "name": "First Half",
+            "code": "1H",
+            "startTime": 1739316795120,
+            "minuteOffset": 0,
+            "events": {
+                "home": [
+                    {
+                        "id": 1,
+                        "isHomeTeam": true,
+                        "statTypeID": 3,
+                        "statType": "Corner",
+                        "time": 1739316799051,
+                        "outcomeId": 12,
+                        "outcome": "Cross"
+                    },
+                    {
+                        "id": 2,
+                        "isHomeTeam": true,
+                        "statTypeID": 1,
+                        "statType": "Cross",
+                        "time": 1739316800921,
+                        "outcomeId": 5,
+                        "outcome": "Out of Play"
+                    },
+                    {
+                        "id": 3,
+                        "isHomeTeam": true,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316806446,
+                        "outcomeId": 10,
+                        "outcome": "Off Target"
+                    },
+                    {
+                        "id": 4,
+                        "isHomeTeam": true,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316809008,
+                        "outcomeId": 9,
+                        "outcome": "Goal"
+                    },
+                    {
+                        "id": 5,
+                        "isHomeTeam": true,
+                        "statTypeID": 3,
+                        "statType": "Corner",
+                        "time": 1739316850356,
+                        "outcomeId": 12,
+                        "outcome": "Cross"
+                    },
+                    {
+                        "id": 6,
+                        "isHomeTeam": true,
+                        "statTypeID": 1,
+                        "statType": "Cross",
+                        "time": 1739316854245,
+                        "outcomeId": 4,
+                        "outcome": "Corner"
+                    },
+                    {
+                        "id": 7,
+                        "isHomeTeam": true,
+                        "statTypeID": 3,
+                        "statType": "Corner",
+                        "time": 1739316856224,
+                        "outcomeId": 12,
+                        "outcome": "Cross"
+                    },
+                    {
+                        "id": 8,
+                        "isHomeTeam": true,
+                        "statTypeID": 1,
+                        "statType": "Cross",
+                        "time": 1739316857383,
+                        "outcomeId": 1,
+                        "outcome": "Shot"
+                    },
+                    {
+                        "id": 9,
+                        "isHomeTeam": true,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316858619,
+                        "outcomeId": 9,
+                        "outcome": "Goal"
+                    }
+                ],
+                "away": [
+                    {
+                        "id": 10,
+                        "isHomeTeam": false,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316874619,
+                        "outcomeId": 8,
+                        "outcome": "Saved"
+                    },
+                    {
+                        "id": 11,
+                        "isHomeTeam": false,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316876940,
+                        "outcomeId": 7,
+                        "outcome": "Blocked"
+                    },
+                    {
+                        "id": 12,
+                        "isHomeTeam": false,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316879268,
+                        "outcomeId": 8,
+                        "outcome": "Saved"
+                    },
+                    {
+                        "id": 13,
+                        "isHomeTeam": false,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316897302,
+                        "outcomeId": 7,
+                        "outcome": "Blocked"
+                    },
+                    {
+                        "id": 14,
+                        "isHomeTeam": false,
+                        "statTypeID": 3,
+                        "statType": "Corner",
+                        "time": 1739316900920,
+                        "outcomeId": 11,
+                        "outcome": "Short"
+                    },
+                    {
+                        "id": 15,
+                        "isHomeTeam": false,
+                        "statTypeID": 3,
+                        "statType": "Corner",
+                        "time": 1739316903970,
+                        "outcomeId": 12,
+                        "outcome": "Cross"
+                    },
+                    {
+                        "id": 16,
+                        "isHomeTeam": false,
+                        "statTypeID": 1,
+                        "statType": "Cross",
+                        "time": 1739316905162,
+                        "outcomeId": 3,
+                        "outcome": "Cleared"
+                    }
+                ]
+            }
+        },
+        {
+            "id": "",
+            "name": "Second Half",
+            "code": "2H",
+            "startTime": 1739316914290,
+            "minuteOffset": 45,
+            "events": {
+                "home": [
+                    {
+                        "id": 17,
+                        "isHomeTeam": true,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316917346,
+                        "outcomeId": 9,
+                        "outcome": "Goal"
+                    },
+                    {
+                        "id": 18,
+                        "isHomeTeam": true,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316919620,
+                        "outcomeId": 9,
+                        "outcome": "Goal"
+                    },
+                    {
+                        "id": 19,
+                        "isHomeTeam": true,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316921900,
+                        "outcomeId": 9,
+                        "outcome": "Goal"
+                    },
+                    {
+                        "id": 24,
+                        "isHomeTeam": true,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739317045830,
+                        "outcomeId": 9,
+                        "outcome": "Goal"
+                    }
+                ],
+                "away": [
+                    {
+                        "id": 20,
+                        "isHomeTeam": false,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316925267,
+                        "outcomeId": 8,
+                        "outcome": "Saved"
+                    },
+                    {
+                        "id": 21,
+                        "isHomeTeam": false,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316929030,
+                        "outcomeId": 8,
+                        "outcome": "Saved"
+                    },
+                    {
+                        "id": 22,
+                        "isHomeTeam": false,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316931760,
+                        "outcomeId": 7,
+                        "outcome": "Blocked"
+                    },
+                    {
+                        "id": 23,
+                        "isHomeTeam": false,
+                        "statTypeID": 2,
+                        "statType": "Shot",
+                        "time": 1739316933765,
+                        "outcomeId": 9,
+                        "outcome": "Goal"
+                    }
+                ]
+            }
+        }
+    ]
+}
