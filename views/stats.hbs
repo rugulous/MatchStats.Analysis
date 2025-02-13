@@ -1,0 +1,41 @@
+{{> header title=title page="Stats"}}
+
+{{#each data.segments}}
+<h3 class="mt-3">{{name}}</h3>
+
+<div class="row row-cols-3">
+    <div>
+        <h4>Stat</h4>
+    </div>
+    <div>
+        <h4>{{../data.homeTeam}}</h4>
+    </div>
+    <div>
+        <h4>{{../data.awayTeam}}</h4>
+    </div>
+
+    {{#eachStatCategory this}}
+    <div{{#unless isFirst}} class="mt-3"{{/unless}}>
+        <b>{{stat}}</b>
+    </div>
+    <div{{#unless isFirst}} class="mt-3"{{/unless}}>
+        <b>{{home}}</b>
+    </div>
+    <div{{#unless isFirst}} class="mt-3"{{/unless}}>
+        <b>{{away}}</b>
+    </div>
+
+    {{#each substats}}
+    <div>
+        <i>- {{@key}}</i>
+    </div>
+    <div>
+        <i>{{home}} ({{homePc}}%)</i>
+    </div>
+    <div>
+        <i>{{away}} ({{awayPc}}%)</i>
+    </div>
+    {{/each}}
+    {{/eachStatCategory}}
+</div>
+{{/each}}

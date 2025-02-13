@@ -4,14 +4,14 @@
 {{#eachStat segment}}
     <div class="col-2 d-none d-lg-flex"></div>
     <div class="col-5 col-lg-3">
-        {{#if this.isHome}}
-        <p><b>{{getTime this.time ../segment.startTime ../segment.minuteOffset}}</b> - {{this.statType}} <i>({{this.outcome}})</i></p>
+        {{#if isHome}}
+        <p><b>{{getTime time ../segment.startTime ../segment.minuteOffset}}</b> - {{statType}} <i>({{outcome}})</i></p>
         {{/if}}
     </div>
     <div class="col-2 timeline"></div>
     <div class="col-5 col-lg-3 text-end">
-        {{#unless this.isHome}}
-        <p><i>({{this.outcome}})</i> {{this.statType}} - <b>{{getTime this.time ../segment.startTime ../segment.minuteOffset}}</b></p>
+        {{#unless isHome}}
+        <p><i>({{outcome}})</i> {{statType}} - <b>{{getTime time ../segment.startTime ../segment.minuteOffset}}</b></p>
         {{/unless}}
     </div>
     <div class="col-2 d-none d-lg-flex"></div>
