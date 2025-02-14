@@ -1,0 +1,141 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+{{> header title=title page="Graphs"}}
+
+    {{#each segments}}   
+    <h2>{{name}}</h2>
+    <div class="row">
+        <div class="col-lg-6 mb-3">
+            <h3>Home Stats</h3>
+            <canvas id="{{code}}_home"></canvas>
+            <script>
+                (function(){
+                    const data = {{{json (lookup ../home @index)}}};
+
+                    new Chart(document.getElementById("{{code}}_home"), {
+                        type: 'bar',
+                        data: {
+                            labels: [{{#each (lookup ../home @index)}}"{{multiply @index 5}} - {{multiply (add @index 1) 5}}",{{/each}}],
+                            datasets: [{
+                                label: 'Shots',
+                                data: data.map(i => i.Shot)
+                            }, {
+                                label: 'Crosses',
+                                data: data.map(i => i.Cross)
+                            }, {
+                                label: 'Corners',
+                                data: data.map(i => i.Corner)
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    suggestedMax: {{../maxStats}},
+                                    stacked: true
+                                },
+                                x: {
+                                    stacked: true
+                                }
+                            }
+                        }
+                    });
+                })();
+                
+            </script>
+        </div>
+
+
+        <div class="col-lg-6 mb-3">
+            <h3>Away Stats</h3>
+            <canvas id="{{code}}_away"></canvas>
+            <script>
+                (function(){
+                    const data = {{{json (lookup ../away @index)}}};
+
+                    new Chart(document.getElementById("{{code}}_away"), {
+                        type: 'bar',
+                        data: {
+                            labels: [{{#each (lookup ../away @index)}}"{{multiply @index 5}} - {{multiply (add @index 1) 5}}",{{/each}}],
+                            datasets: [{
+                                label: 'Shots',
+                                data: data.map(i => i.Shot)
+                            }, {
+                                label: 'Crosses',
+                                data: data.map(i => i.Cross)
+                            }, {
+                                label: 'Corners',
+                                data: data.map(i => i.Corner)
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    suggestedMax: {{../maxStats}},
+                                    stacked: true
+                                },
+                                x: {
+                                    stacked: true
+                                }
+                            }
+                        }
+                    });
+                })();
+            </script>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+            <h3>Momentum</h3>
+            <canvas id="{{code}}_momentum"></canvas>
+            <script>
+                (function(){
+                    const data = [{{#each (lookup ../momentum @index)}}{{this}},{{/each}}];
+
+                    new Chart(document.getElementById("{{code}}_momentum"), {
+                        type: 'bar',
+                        data: {
+                            labels: [{{#each (lookup ../momentum @index)}}"{{multiply @index 5}} - {{multiply (add @index 1) 5}}",{{/each}}],
+                            datasets: [{
+                                label: 'Home',
+                                data: data.map(x => x > 0 ? x : 0),
+                                backgroundColor: (ctx) => ctx.raw >= 0 ? '#E4E4E4' : '#353535'
+                            }, {
+                                label: 'Away',
+                                data: data.map(x => x < 0 ? x : 0),
+                                backgroundColor: '#353535'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                x: {
+                                    stacked: true,
+                                    title: {
+                                        display: true,
+                                        text: "Minute"
+                                    }
+                                },
+                                y: {
+                                    stacked: true,
+                                    suggestedMin: -{{../maxMomentum}},
+                                    suggestedMax: {{../maxMomentum}},
+                                    ticks: {
+                                        callback: (value) => Math.abs(value) 
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: "Net Events"
+                                    },
+                                    grid: {
+                                        drawBorder: false,
+                                        color: (context) => context.tick.value === 0 ? "black" : "rgba(0,0,0,0.1)", 
+                                        lineWidth: (context) => context.tick.value === 0 ? 2 : 1
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })();
+            </script>
+        </div>
+    </div>
+    {{/each}}
+</div>

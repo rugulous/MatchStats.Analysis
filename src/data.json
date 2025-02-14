@@ -11,6 +11,7 @@
             "code": "1H",
             "startTime": 1739316795120,
             "minuteOffset": 0,
+            "duration": 45,
             "events": {
                 "home": [
                     {
@@ -101,7 +102,7 @@
                         "isHomeTeam": false,
                         "statTypeID": 2,
                         "statType": "Shot",
-                        "time": 1739316874619,
+                        "time": 1739317174619,
                         "outcomeId": 8,
                         "outcome": "Saved"
                     },
@@ -110,7 +111,7 @@
                         "isHomeTeam": false,
                         "statTypeID": 2,
                         "statType": "Shot",
-                        "time": 1739316876940,
+                        "time": 1739317176940,
                         "outcomeId": 7,
                         "outcome": "Blocked"
                     },
@@ -119,7 +120,7 @@
                         "isHomeTeam": false,
                         "statTypeID": 2,
                         "statType": "Shot",
-                        "time": 1739316879268,
+                        "time": 1739317179268,
                         "outcomeId": 8,
                         "outcome": "Saved"
                     },
@@ -168,6 +169,7 @@
             "code": "2H",
             "startTime": 1739316914290,
             "minuteOffset": 45,
+            "duration": 45,
             "events": {
                 "home": [
                     {
