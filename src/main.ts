@@ -2,6 +2,8 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import { readFileSync } from 'fs';
 import path from 'path';
+import 'dotenv/config';
+import { saveMatch } from './db';
 
 type StatType = "Shot" | "Cross" | "Corner";
 
@@ -174,6 +176,8 @@ app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "../views"));
 app.use(express.static(path.join(__dirname, "../public")));
 
+app.use(express.json());
+
 const getData = () => {
     const data: Data = JSON.parse(readFileSync(path.join(__dirname, "data.json"), "utf8"));
     const title = `${data.homeTeam} ${data.homeScore}-${data.awayScore} ${data.awayTeam}`;
@@ -268,6 +272,11 @@ app.get('/graphs', (_, res) => {
     target.away -= goals.away;
 
     res.render('graphs.hbs', {title, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, ...stats});
+});
+
+app.post("/record-match", async (req, res) => {
+    const id = await saveMatch(req.body);
+    res.send(id);
 });
 
 app.listen(3000, () => "Listening on port 3000!");
