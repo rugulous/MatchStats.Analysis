@@ -33,6 +33,89 @@ type Data = {
     segments: Segment[];
 };
 
+function categoriseEvents(events: {home: Event[], away: Event[]}){
+    const categories: { [key: string]: any } = {
+        "Cross": {
+            home: 0,
+            away: 0,
+            substats: {
+                "Won": { home: 0, away: 0 },
+                "Lost": { home: 0, away: 0 },
+                "Missed": { home: 0, away: 0 }
+            }
+        },
+        "Shot":  {
+            home: 0,
+            away: 0,
+            substats: {
+                "On Target": { home: 0, away: 0 },
+                "Goals": { home: 0, away: 0, calculateTotalFrom: "On Target" },
+                "Blocked": { home: 0, away: 0 },
+                "Off Target": { home: 0, away: 0 }
+            }
+        },
+        "Corner":  {
+            home: 0,
+            away: 0,
+            substats: {
+                "Short": { home: 0, away: 0 },
+                "Crossed": { home: 0, away: 0 }
+            }
+        }
+    }
+
+    const substatConfig: {[key: string]: {[key: string]: number[]}} = {
+        "Shot": {
+            "On Target": [9, 8],
+            "Goals": [9],
+            "Blocked": [7],
+            "Off Target": [10]
+        },
+        "Corner": {
+            "Short": [11],
+            "Crossed": [12]
+        },
+        "Cross": {
+            "Won": [1, 2],
+            "Lost": [3, 4],
+            "Missed": [5, 6]
+        }
+    }
+
+    events.home.forEach(event => {
+        categories[event.statType].home++;
+        Object.keys(substatConfig[event.statType]).forEach(k => {
+            if(substatConfig[event.statType][k].some(x => x == event.outcomeId)){
+                categories[event.statType].substats[k].home++;
+            }
+        })
+    });
+
+    events.away.forEach(event => {
+        categories[event.statType].away++;
+        Object.keys(substatConfig[event.statType]).forEach(k => {
+            if(substatConfig[event.statType][k].some(x => x == event.outcomeId)){
+                categories[event.statType].substats[k].away++;
+            }
+        })
+    });
+
+    return categories;
+}
+
+function buildOverallSegment(segments: Segment[]): Segment{
+    const home = segments.flatMap(segment => segment.events.home);
+    const away = segments.flatMap(segment => segment.events.away);
+
+    return {
+        name: "Overall",
+        startTime: 0,
+        events: {home, away},
+        duration: 45,
+        code: ""
+    };
+}
+
 const app = express();
 
 app.engine("hbs", engine({
@@ -51,71 +134,7 @@ app.engine("hbs", engine({
             return combined.map(event => options.fn(event)).join("");
         },
         eachStatCategory: (segment: Segment, options: Handlebars.HelperOptions) => {
-            const categories: { [key: string]: any } = {
-                "Cross": {
-                    home: 0,
-                    away: 0,
-                    substats: {
-                        "Won": { home: 0, away: 0 },
-                        "Lost": { home: 0, away: 0 },
-                        "Missed": { home: 0, away: 0 }
-                    }
-                },
-                "Shot":  {
-                    home: 0,
-                    away: 0,
-                    substats: {
-                        "On Target": { home: 0, away: 0 },
-                        "Goals": { home: 0, away: 0, calculateTotalFrom: "On Target" },
-                        "Blocked": { home: 0, away: 0 },
-                        "Off Target": { home: 0, away: 0 }
-                    }
-                },
-                "Corner":  {
-                    home: 0,
-                    away: 0,
-                    substats: {
-                        "Short": { home: 0, away: 0 },
-                        "Crossed": { home: 0, away: 0 }
-                    }
-                }
-            }
-
-            const substatConfig: {[key: string]: {[key: string]: number[]}} = {
-                "Shot": {
-                    "On Target": [9, 8],
-                    "Goals": [9],
-                    "Blocked": [7],
-                    "Off Target": [10]
-                },
-                "Corner": {
-                    "Short": [11],
-                    "Crossed": [12]
-                },
-                "Cross": {
-                    "Won": [1, 2],
-                    "Lost": [3, 4],
-                    "Missed": [5, 6]
-                }
-            }
-
-            segment.events.home.forEach(event => {
-                categories[event.statType].home++;
-                Object.keys(substatConfig[event.statType]).forEach(k => {
-                    if(substatConfig[event.statType][k].some(x => x == event.outcomeId)){
-                        categories[event.statType].substats[k].home++;
-                    }
-                })
-            });
-
-            segment.events.home.forEach(event => {
-                categories[event.statType].away++;
-                Object.keys(substatConfig[event.statType]).forEach(k => {
-                    if(substatConfig[event.statType][k].some(x => x == event.outcomeId)){
-                        categories[event.statType].substats[k].away++;
-                    }
-                })
-            });
+            const categories = categoriseEvents(segment.events);
 
             return Object.keys(categories).map((k, i) => {
                 const cat = categories[k];
@@ -167,15 +186,8 @@ app.get('/stats', (_, res) => {
     const data = getData();
 
     //add a dummy "Overall" segment
-    const home = data.data.segments.flatMap(segment => segment.events.home);
-    const away = data.data.segments.flatMap(segment => segment.events.home);
-    data.data.segments.unshift({
-        name: "Overall",
-        startTime: 0,
-        events: {home, away},
-        duration: 45,
-        code: ""
-    });
+    
+    data.data.segments.unshift(buildOverallSegment(data.data.segments));
 
     res.render('stats.hbs', data)
 });
@@ -245,7 +257,17 @@ app.get('/graphs', (_, res) => {
         }
     });
 
-    res.render('graphs.hbs', {title, ...stats});
+    const overall = buildOverallSegment(data.segments);
+    const categories = categoriseEvents(overall.events);
+
+    //for this specific situation, we want to class goals and shots on target as different events (whereas previously they've been a percentage of each other)
+    const target = categories.Shot.substats['On Target'];
+    const goals = categories.Shot.substats.Goals;
+
+    target.home -= goals.home;
+    target.away -= goals.away;
+
+    res.render('graphs.hbs', {title, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, ...stats});
 });
 
 app.listen(3000, () => "Listening on port 3000!");
