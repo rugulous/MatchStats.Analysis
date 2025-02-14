@@ -1,6 +1,5 @@
 import express from 'express';
 import { engine } from 'express-handlebars';
-import { readFileSync } from 'fs';
 import path from 'path';
 import 'dotenv/config';
 import { loadMatch, saveMatch } from './db';
@@ -301,4 +300,4 @@ app.post("/record-match", async (req, res) => {
     res.send(id);
 });
 
-app.listen(3000, () => "Listening on port 3000!");
+app.listen(parseInt(process.env.PORT ?? "3000"), () => "Listening on port 3000!");
