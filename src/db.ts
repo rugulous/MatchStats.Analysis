@@ -29,7 +29,7 @@ const singleQuery = async (query: string, ...params: any[]) => {
         return null;
     }
 
-    return result;
+    return result.data[0];
 }
 
 type AppEvent = {
@@ -66,4 +66,50 @@ export async function saveMatch(match: AppMatch){
         }
     }
     return matchId;
+}
+
+export async function loadMatch(id: string){
+    //split into a few queries for now, probably no reason to combine
+    const match = await singleQuery("SELECT * FROM Matches WHERE ID = ?", id)
+
+    if(!match){
+        return null;
+    }
+
+    const segments: {[key: number]: any} = {};
+
+    (await executeQuery("SELECT ms.ID, st.Name, st.Code, ms.StartTime, st.MinuteOffset, st.Duration, s.IsHome, s.StatTypeID, stat.Description AS StatType, s.Timestamp, s.OutcomeID, o.Name AS Outcome FROM MatchSegments ms INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType INNER JOIN MatchStats s ON s.MatchSegmentId = ms.ID INNER JOIN StatTypes stat ON stat.ID = s.StatTypeID INNER JOIN Outcomes o ON o.ID = s.OutcomeID WHERE ms.MatchID = ?", id)).data.forEach(row => {
+        if(!segments.hasOwnProperty(row.ID)){
+            segments[row.ID] = {
+                name: row.Name,
+                code: row.Code,
+                startTime: row.StartTime,
+                minuteOffset: row.MinuteOffset,
+                duration: row.Duration,
+                events: {home: [], away: []}
+            }
+        }
+
+        const event = {
+            statTypeID: row.StatTypeID,
+            statType: row.StatType,
+            time: row.Timestamp,
+            outcomeId: row.OutcomeID,
+            outcome: row.Outcome
+        };
+
+        if(row.IsHome){
+            segments[row.ID].events.home.push(event);
+        } else {
+            segments[row.ID].events.away.push(event);
+        }
+    });
+
+    return {
+        homeTeam: match.HomeTeam,
+        awayTeam: match.AwayTeam,
+        homeScore: match.HomeGoals,
+        awayScore: match.AwayGoals,
+        segments: Object.values(segments)
+    }
 }

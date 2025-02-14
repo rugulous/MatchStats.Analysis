@@ -3,7 +3,7 @@ import { engine } from 'express-handlebars';
 import { readFileSync } from 'fs';
 import path from 'path';
 import 'dotenv/config';
-import { saveMatch } from './db';
+import { loadMatch, saveMatch } from './db';
 
 type StatType = "Shot" | "Cross" | "Corner";
 
@@ -178,16 +178,31 @@ app.use(express.static(path.join(__dirname, "../public")));
 
 app.use(express.json());
 
-const getData = () => {
-    const data: Data = JSON.parse(readFileSync(path.join(__dirname, "data.json"), "utf8"));
+const getData = async (id: string) => {
+    const data: Data | null = await loadMatch(id);
+    if(!data){
+        return null;
+    }
+
     const title = `${data.homeTeam} ${data.homeScore}-${data.awayScore} ${data.awayTeam}`;
     return {data, title};
 }
 
-app.get('/', (_, res) => res.redirect("/timeline"));
-app.get('/timeline', (_, res) => res.render('timeline.hbs', getData()));
-app.get('/stats', (_, res) => {
-    const data = getData();
+app.get('/:id/timeline', async (req, res) => {
+    const data = await getData(req.params.id);
+    if(!data){
+        res.status(404).send();
+        return;
+    }
+
+    res.render('timeline.hbs', data)
+});
+app.get('/:id/stats', async (req, res) => {
+    const data = await getData(req.params.id);
+    if(!data){
+        res.status(404).send();
+        return;
+    }
 
     //add a dummy "Overall" segment
     
@@ -195,8 +210,14 @@ app.get('/stats', (_, res) => {
 
     res.render('stats.hbs', data)
 });
-app.get('/graphs', (_, res) => {
-    const {data, title} = getData();
+app.get('/:id/graphs', async (req, res) => {
+    const _data = await getData(req.params.id);
+    if(!_data){
+        res.status(404).send();
+        return;
+    }
+
+    const {data, title} = _data;
 
     const stats: {
         momentum: number[][],
@@ -214,7 +235,7 @@ app.get('/graphs', (_, res) => {
         maxStats: 0
     };
 
-    data.segments.forEach((segment, ix) => {
+    data.segments.forEach(segment => {
         const numSegments = Math.floor(segment.duration / 5);
         const momentum: number[] = Array(numSegments).fill(0);
         //if we just fill these with [], JS makes it a reference to the same object (i.e. [].push pushes to ALL)
@@ -273,6 +294,7 @@ app.get('/graphs', (_, res) => {
 
     res.render('graphs.hbs', {title, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, ...stats});
 });
+app.get('/:id/',  (req, res) => res.redirect(`/${req.params.id}/timeline`));
 
 app.post("/record-match", async (req, res) => {
     const id = await saveMatch(req.body);
