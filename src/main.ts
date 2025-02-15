@@ -253,8 +253,8 @@ app.get('/:id/graphs', async (req, res) => {
 
         segment.events.away.forEach(e => {
             let section = Math.floor((((e.time - segment.startTime) / 1000) / 60) / 5);
-            if(section >= momentum.length){
-                section = momentum.length; //added time
+            if(section >= numSegments){
+                section = numSegments - 1; //added time
             }
 
             momentum[section]--;
