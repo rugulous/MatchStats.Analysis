@@ -163,7 +163,7 @@ app.engine("hbs", engine({
             const seconds = Math.floor(time % 60);
             return minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
         },
-        getRoutes: () => ["Timeline", "Stats", "Graphs"],
+        getRoutes: () => ["Stats", "Timeline", "Graphs"],
         eq: (a: any, b: any) => a == b,
         lower: (str: string) => str.toLowerCase(),
         multiply: (a: number, b: number) => a * b,
@@ -293,7 +293,7 @@ app.get('/:id/graphs', async (req, res) => {
 
     res.render('graphs.hbs', {title, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, ...stats});
 });
-app.get('/:id/',  (req, res) => res.redirect(`/${req.params.id}/timeline`));
+app.get('/:id/',  (req, res) => res.redirect(`/${req.params.id}/stats`));
 
 app.post("/record-match", async (req, res) => {
     const id = await saveMatch(req.body);
