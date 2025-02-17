@@ -1,6 +1,5 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-    //define goals globally for all charts to make use of
     const goals = {{{json goals}}};
 
     const pendingDraws = [];
@@ -14,29 +13,33 @@
         }
     }
 
-    function drawGoalIcons(chart, homeOrAway, segment, negate = false){
-        if(!goalIcon.complete){
+    function drawGoalIcons(chart, homeOrAway, segment) {
+        if (!goalIcon.complete) {
             pendingDraws.push([chart, homeOrAway, segment]);
             return;
         }
 
         homeOrAway = homeOrAway.toLowerCase();
+        const ctx = chart.ctx;
+        const xScale = chart.scales.x;
+        const y = chart.scales.y.getPixelForTick(0);
+
         goals[segment].forEach((goalCount, index) => {
-            const totalGoals = (homeOrAway == "both") ? goalCount["home"] + goalCount["away"] : goalCount[homeOrAway];
-            if(totalGoals == 0){
-                return;
-            }
+            const totalGoals = ((homeOrAway === "both") ? goalCount["home"] + goalCount["away"] : goalCount[homeOrAway]);
+            if (totalGoals === 0) return;
 
-            const xScale = chart.scales.x;
-            const yScale = chart.scales.y;
-
-            const tickSpacing = (xScale.getPixelForTick(1) - xScale.getPixelForTick(0)) ?? 20;
-            const imgSize = Math.min(Math.max(tickSpacing * 0.5, 10), 20);
             const x = xScale.getPixelForTick(index);
+            const tickWidth = (xScale.getPixelForTick(1) - xScale.getPixelForTick(0)) ?? 20;
 
-            for(let i = 1; i <= totalGoals; i++){
-                const y = chart.scales.y.getPixelForValue(negate ? -i : i);
-                chart.ctx.drawImage(goalIcon, x - (imgSize / 2), y, imgSize, imgSize);
+            // Calculate icon size to fit within the tick width
+            const imgSize = Math.min(Math.max(tickWidth * 0.5, 10), 20);
+            const spacing = tickWidth / totalGoals;
+
+            // Start at center, adjust to fit within the tick
+            const startX = x - ((totalGoals - 1) * spacing) / 2;
+
+            for (let i = 0; i < totalGoals; i++) {
+                ctx.drawImage(goalIcon, startX + i * spacing - (imgSize / 2), y - (imgSize / 2), imgSize, imgSize);
             }
         });
     }
@@ -48,13 +51,7 @@
                 return;
             }
 
-            if(["both", "home"].includes(options.homeOrAway)){
-                drawGoalIcons(chart, "home", options.segment);
-            }
-
-            if(["both", "away"].includes(options.homeOrAway)){
-                drawGoalIcons(chart, "away", options.segment, options.homeOrAway == "both");
-            }
+            drawGoalIcons(chart, options.homeOrAway, options.segment);
         }
     };
 
@@ -80,6 +77,9 @@ Chart.register(goalIconPlugin);
                         datasets: [{
                             data: [{{#each substats}}{{home}},{{/each}}]
                         }]
+                    },
+                    options: {
+                        animation: false
                     }
                 })
             })();
@@ -105,6 +105,9 @@ Chart.register(goalIconPlugin);
                         datasets: [{
                             data: [{{#each substats}}{{away}},{{/each}}]
                         }]
+                    },
+                    options: {
+                        animation: false
                     }
                 })
             })();
@@ -143,12 +146,14 @@ Chart.register(goalIconPlugin);
                             scales: {
                                 y: {
                                     suggestedMax: {{../maxStats}},
-                                    stacked: true
+                                    stacked: true,
+                                    beginAtZero: true
                                 },
                                 x: {
                                     stacked: true
                                 }
                             },
+                            animation: false,
                             plugins: {
                                 goalIcons: {
                                     homeOrAway: "home",
@@ -189,12 +194,14 @@ Chart.register(goalIconPlugin);
                             scales: {
                                 y: {
                                     suggestedMax: {{../maxStats}},
-                                    stacked: true
+                                    stacked: true,
+                                    beginAtZero: true
                                 },
                                 x: {
                                     stacked: true
                                 }
                             },
+                            animation: false,
                             plugins: {
                                 goalIcons: {
                                     homeOrAway: "away",
@@ -252,9 +259,11 @@ Chart.register(goalIconPlugin);
                                         drawBorder: false,
                                         color: (context) => context.tick.value === 0 ? "black" : "rgba(0,0,0,0.1)", 
                                         lineWidth: (context) => context.tick.value === 0 ? 2 : 1
-                                    }
+                                    },
+                                    beginAtZero: true
                                 }
                             },
+                            animation: false,
                             plugins: {
                                 goalIcons: {
                                     homeOrAway: "both",
