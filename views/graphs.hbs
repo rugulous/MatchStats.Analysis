@@ -27,13 +27,16 @@
                 return;
             }
 
-            const x = chart.scales.x.getPixelForTick(index);
-            const imgSize = 16;
-            const yOffset = negate ? imgSize : 0
+            const xScale = chart.scales.x;
+            const yScale = chart.scales.y;
+
+            const tickSpacing = (xScale.getPixelForTick(1) - xScale.getPixelForTick(0)) ?? 20;
+            const imgSize = Math.min(Math.max(tickSpacing * 0.5, 10), 20);
+            const x = xScale.getPixelForTick(index);
 
             for(let i = 1; i <= totalGoals; i++){
                 const y = chart.scales.y.getPixelForValue(negate ? -i : i);
-                chart.ctx.drawImage(goalIcon, x - (imgSize / 2), y - yOffset, imgSize, imgSize);
+                chart.ctx.drawImage(goalIcon, x - (imgSize / 2), y, imgSize, imgSize);
             }
         });
     }
