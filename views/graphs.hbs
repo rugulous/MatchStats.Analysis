@@ -226,13 +226,13 @@ Chart.register(goalIconPlugin);
                         data: {
                             labels: [{{#each (lookup ../momentum @index)}}"{{multiply @index 5}} - {{multiply (add @index 1) 5}}",{{/each}}],
                             datasets: [{
-                                label: 'Home',
+                                label: '{{../homeTeam}}',
                                 data: data.map(x => x > 0 ? x : 0),
-                                backgroundColor: (ctx) => ctx.raw >= 0 ? '#E4E4E4' : '#353535'
+                                backgroundColor: "{{../colours.home}}",
                             }, {
-                                label: 'Away',
+                                label: '{{../awayTeam}}',
                                 data: data.map(x => x < 0 ? x : 0),
-                                backgroundColor: '#353535'
+                                backgroundColor: '{{../colours.away}}'
                             }]
                         },
                         options: {

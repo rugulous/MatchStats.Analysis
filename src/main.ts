@@ -303,7 +303,15 @@ app.get('/:id/graphs', async (req, res) => {
     target.home -= goals.home;
     target.away -= goals.away;
 
-    res.render('graphs.hbs', {title, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, ...stats});
+    let homeColours = "#2A285E";
+    let awayColours = "#D1768F";
+
+    if(data.awayTeam.toLocaleLowerCase().includes("totty")){
+        //swap values
+        [homeColours, awayColours] = [awayColours, homeColours];
+    }
+
+    res.render('graphs.hbs', {title, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, colours: {home: homeColours, away: awayColours}, ...stats});
 });
 app.get('/:id/',  (req, res) => res.redirect(`/${req.params.id}/stats`));
 
