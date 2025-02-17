@@ -32,7 +32,7 @@
             const tickWidth = (xScale.getPixelForTick(1) - xScale.getPixelForTick(0)) ?? 20;
 
             // Calculate icon size to fit within the tick width
-            const imgSize = Math.min(Math.max(tickWidth * 0.5, 10), 20);
+            const imgSize = Math.min(Math.max(tickWidth * 0.5, 5), 16);
             const spacing = tickWidth / totalGoals;
 
             // Start at center, adjust to fit within the tick

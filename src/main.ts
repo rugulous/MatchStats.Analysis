@@ -279,9 +279,8 @@ app.get('/:id/graphs', async (req, res) => {
         stats.goals.push(goals);
 
         for(let i = 0; i < numSegments; i++){
-            if(momentum[i] + goals[i].home + goals[i].away > stats.maxMomentum){
-                //although goals are part of other stats, momentum could be 0 with 4 goals (2 each)
-                stats.maxMomentum = momentum[i] + goals[i].home + goals[i].away;
+            if(momentum[i] > stats.maxMomentum){
+                stats.maxMomentum = momentum[i] ;
             }
 
             if(home[i].Shot + home[i].Cross + home[i].Corner > stats.maxStats){
