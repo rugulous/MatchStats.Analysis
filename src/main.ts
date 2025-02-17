@@ -219,6 +219,7 @@ app.get('/:id/graphs', async (req, res) => {
     const {data, title} = _data;
 
     const stats: {
+        goals: {home: number, away: number}[][]
         momentum: number[][],
         home: Record<StatType, number>[][],
         away: Record<StatType, number>[][],
@@ -226,6 +227,7 @@ app.get('/:id/graphs', async (req, res) => {
         maxMomentum: number,
         maxStats: number
     } = {
+        goals: [],
         momentum: [],
         home: [],
         away: [],
@@ -240,11 +242,16 @@ app.get('/:id/graphs', async (req, res) => {
         //if we just fill these with [], JS makes it a reference to the same object (i.e. [].push pushes to ALL)
         const home: Record<StatType, number>[] = Array(numSegments).fill(0).map(_ => ({Shot: 0, Cross: 0, Corner: 0}));
         const away: Record<StatType, number>[] = Array(numSegments).fill(0).map(_ => ({Shot: 0, Cross: 0, Corner: 0}));
+        const goals = Array(numSegments).fill(0).map(_ => ({home: 0, away: 0}));
 
         segment.events.home.forEach(e => {
             let section = Math.floor((((e.time - segment.startTime) / 1000) / 60) / 5);
             if(section >= numSegments){
                 section = numSegments - 1; //added time
+            }
+
+            if(e.outcome == "Goal"){
+                goals[section].home++;
             }
             
             momentum[section]++;
@@ -257,6 +264,10 @@ app.get('/:id/graphs', async (req, res) => {
                 section = numSegments - 1; //added time
             }
 
+            if(e.outcome == "Goal"){
+                goals[section].away++;
+            }
+
             momentum[section]--;
             away[section][e.statType]++;
         });
@@ -265,10 +276,12 @@ app.get('/:id/graphs', async (req, res) => {
         stats.home.push(home);
         stats.away.push(away);
         stats.segments.push({name: segment.name, code: segment.code});
+        stats.goals.push(goals);
 
         for(let i = 0; i < numSegments; i++){
-            if(momentum[i] > stats.maxMomentum){
-                stats.maxMomentum = momentum[i];
+            if(momentum[i] + goals[i].home + goals[i].away > stats.maxMomentum){
+                //although goals are part of other stats, momentum could be 0 with 4 goals (2 each)
+                stats.maxMomentum = momentum[i] + goals[i].home + goals[i].away;
             }
 
             if(home[i].Shot + home[i].Cross + home[i].Corner > stats.maxStats){

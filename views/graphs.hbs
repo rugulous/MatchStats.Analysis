@@ -1,4 +1,62 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+    //define goals globally for all charts to make use of
+    const goals = {{{json goals}}};
+
+    const pendingDraws = [];
+    const goalIcon = new Image();
+    goalIcon.src = "/Football.svg";
+
+    goalIcon.onload = () => {
+        while(pendingDraws.length > 0){
+            const [chart, homeOrAway, segment] = pendingDraws.pop();
+            drawGoalIcons(chart, homeOrAway, segment);
+        }
+    }
+
+    function drawGoalIcons(chart, homeOrAway, segment, negate = false){
+        if(!goalIcon.complete){
+            pendingDraws.push([chart, homeOrAway, segment]);
+            return;
+        }
+
+        homeOrAway = homeOrAway.toLowerCase();
+        goals[segment].forEach((goalCount, index) => {
+            const totalGoals = (homeOrAway == "both") ? goalCount["home"] + goalCount["away"] : goalCount[homeOrAway];
+            if(totalGoals == 0){
+                return;
+            }
+
+            const x = chart.scales.x.getPixelForTick(index);
+            const imgSize = 16;
+            const yOffset = negate ? imgSize : 0
+
+            for(let i = 1; i <= totalGoals; i++){
+                const y = chart.scales.y.getPixelForValue(negate ? -i : i);
+                chart.ctx.drawImage(goalIcon, x - (imgSize / 2), y - yOffset, imgSize, imgSize);
+            }
+        });
+    }
+
+    const goalIconPlugin = {
+        id: 'goalIcons',
+        afterDraw(chart, args, options) {
+            if(options.homeOrAway == undefined || options.segment == undefined){
+                return;
+            }
+
+            if(["both", "home"].includes(options.homeOrAway)){
+                drawGoalIcons(chart, "home", options.segment);
+            }
+
+            if(["both", "away"].includes(options.homeOrAway)){
+                drawGoalIcons(chart, "away", options.segment, options.homeOrAway == "both");
+            }
+        }
+    };
+
+Chart.register(goalIconPlugin);
+</script>
 
 {{> header title=title page="Graphs"}}
 
@@ -87,6 +145,12 @@
                                 x: {
                                     stacked: true
                                 }
+                            },
+                            plugins: {
+                                goalIcons: {
+                                    homeOrAway: "home",
+                                    segment: {{@index}}
+                                }
                             }
                         }
                     });
@@ -126,6 +190,12 @@
                                 },
                                 x: {
                                     stacked: true
+                                }
+                            },
+                            plugins: {
+                                goalIcons: {
+                                    homeOrAway: "away",
+                                    segment: {{@index}}
                                 }
                             }
                         }
@@ -180,6 +250,12 @@
                                         color: (context) => context.tick.value === 0 ? "black" : "rgba(0,0,0,0.1)", 
                                         lineWidth: (context) => context.tick.value === 0 ? 2 : 1
                                     }
+                                }
+                            },
+                            plugins: {
+                                goalIcons: {
+                                    homeOrAway: "both",
+                                    segment: {{@index}}
                                 }
                             }
                         }
