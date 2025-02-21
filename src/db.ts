@@ -113,3 +113,18 @@ export async function loadMatch(id: string){
         segments: Object.values(segments)
     }
 }
+
+export async function getStatTypes(){
+    return {
+        stats: (await executeQuery("SELECT * FROM StatTypes")).data.map(row => ({
+            id: row.ID,
+            description: row.Description
+        })),
+        outcomes: (await executeQuery("SELECT * FROM Outcomes")).data.map(row => ({
+            id: row.ID,
+            triggeringStatTypeId: row.TriggeringStatTypeID,
+            name: row.Name,
+            nextActionId: row.NextActionID
+        }))
+    };
+}

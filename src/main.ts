@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { loadMatch, saveMatch } from './db';
+import { getStatTypes, loadMatch, saveMatch } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -43,6 +43,10 @@ const getData = async (id: string) => {
     const title = `${data.homeTeam} ${data.homeScore}-${data.awayScore} ${data.awayTeam}`;
     return {data, title};
 }
+
+app.get("/stat-sync", async (_, res) => {
+    res.json(await getStatTypes());
+});
 
 app.get('/:id/timeline', async (req, res) => {
     const data = await getData(req.params.id);
