@@ -118,13 +118,15 @@ export async function getStatTypes(){
     return {
         stats: (await executeQuery("SELECT * FROM StatTypes")).data.map(row => ({
             id: row.ID,
-            description: row.Description
+            description: row.Description,
+            isActive: !!row.IsActive
         })),
         outcomes: (await executeQuery("SELECT * FROM Outcomes")).data.map(row => ({
             id: row.ID,
             triggeringStatTypeId: row.TriggeringStatTypeID,
             name: row.Name,
-            nextActionId: row.NextActionID
+            nextActionId: row.NextActionID,
+            isActive: !!row.IsActive
         }))
     };
 }
