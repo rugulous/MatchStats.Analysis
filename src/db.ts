@@ -115,18 +115,22 @@ export async function loadMatch(id: string){
 }
 
 export async function getStatTypes(){
+    //we don't want to filter here for only active, because we need to tell the app if there have been any state changes
     return {
         stats: (await executeQuery("SELECT * FROM StatTypes")).data.map(row => ({
             id: row.ID,
             description: row.Description,
-            isActive: !!row.IsActive
+            isActive: !!row.IsActive,
+            sortOrder: row.SortOrder
         })),
         outcomes: (await executeQuery("SELECT * FROM Outcomes")).data.map(row => ({
             id: row.ID,
             triggeringStatTypeId: row.TriggeringStatTypeID,
             name: row.Name,
             nextActionId: row.NextActionID,
-            isActive: !!row.IsActive
+            isActive: !!row.IsActive,
+            sortOrder: row.SortOrder,
+            isGoal: !!row.IsGoal
         }))
     };
 }
