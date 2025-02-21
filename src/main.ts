@@ -3,106 +3,10 @@ import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
 import { loadMatch, saveMatch } from './db';
+import { Data, Segment, StatType } from './types';
 
-type StatType = "Shot" | "Cross" | "Corner";
-
-type Event = {
-    id: number;
-    statTypeID: number;
-    statType: StatType;
-    time: number;
-    outcomeId: number;
-    outcome: string;
-}
-
-type Segment = {
-    name: string;
-    code: string;
-    startTime: number;
-    duration: 45 | 15;
-    events: {
-        home: Event[];
-        away: Event[];
-    }
-}
-
-type Data = {
-    homeTeam: string;
-    awayTeam: string;
-    homeScore: number;
-    awayScore: number;
-    segments: Segment[];
-};
-
-function categoriseEvents(events: {home: Event[], away: Event[]}){
-    const categories: { [key: string]: any } = {
-        "Cross": {
-            home: 0,
-            away: 0,
-            substats: {
-                "Won": { home: 0, away: 0 },
-                "Lost": { home: 0, away: 0 },
-                "Missed": { home: 0, away: 0 }
-            }
-        },
-        "Shot":  {
-            home: 0,
-            away: 0,
-            substats: {
-                "On Target": { home: 0, away: 0 },
-                "Goals": { home: 0, away: 0, calculateTotalFrom: "On Target" },
-                "Blocked": { home: 0, away: 0 },
-                "Off Target": { home: 0, away: 0 }
-            }
-        },
-        "Corner":  {
-            home: 0,
-            away: 0,
-            substats: {
-                "Short": { home: 0, away: 0 },
-                "Crossed": { home: 0, away: 0 }
-            }
-        }
-    }
-
-    const substatConfig: {[key: string]: {[key: string]: number[]}} = {
-        "Shot": {
-            "On Target": [9, 8],
-            "Goals": [9],
-            "Blocked": [7],
-            "Off Target": [10]
-        },
-        "Corner": {
-            "Short": [11],
-            "Crossed": [12]
-        },
-        "Cross": {
-            "Won": [1, 2],
-            "Lost": [3, 4],
-            "Missed": [5, 6]
-        }
-    }
-
-    events.home.forEach(event => {
-        categories[event.statType].home++;
-        Object.keys(substatConfig[event.statType]).forEach(k => {
-            if(substatConfig[event.statType][k].some(x => x == event.outcomeId)){
-                categories[event.statType].substats[k].home++;
-            }
-        })
-    });
-
-    events.away.forEach(event => {
-        categories[event.statType].away++;
-        Object.keys(substatConfig[event.statType]).forEach(k => {
-            if(substatConfig[event.statType][k].some(x => x == event.outcomeId)){
-                categories[event.statType].substats[k].away++;
-            }
-        })
-    });
-
-    return categories;
-}
+import handlebarsHelpers from './handlebars-helpers';
+import { categoriseEvents } from './utils';
 
 function buildOverallSegment(segments: Segment[]): Segment{
     const home = segments.flatMap(segment => segment.events.home);
@@ -121,54 +25,7 @@ const app = express();
 
 app.engine("hbs", engine({
     extname: ".hbs",
-    helpers: {
-        json: (obj: any) => JSON.stringify(obj),
-        eachStat: (segment: Segment, options: Handlebars.HelperOptions) => {
-            const combined = [...segment.events.home.map(e => ({
-                ...e,
-                isHome: true
-            })), ...segment.events.away.map(e => ({
-                ...e,
-                isHome: false
-            }))].sort((a, b) => a.time - b.time);
-
-            return combined.map(event => options.fn(event)).join("");
-        },
-        eachStatCategory: (segment: Segment, options: Handlebars.HelperOptions) => {
-            const categories = categoriseEvents(segment.events);
-
-            return Object.keys(categories).map((k, i) => {
-                const cat = categories[k];
-
-                Object.keys(cat.substats).forEach(nestedKey => {
-                    const el = cat.substats[nestedKey];
-                    let homeTotal = cat.home;
-                    let awayTotal = cat.away;
-
-                    if(el.calculateTotalFrom){
-                        homeTotal = cat.substats[el.calculateTotalFrom].home;
-                        awayTotal = cat.substats[el.calculateTotalFrom].away;
-                    }
-
-                    el.homePc = (homeTotal == 0) ? 0 : Math.round((el.home / homeTotal) * 100);
-                    el.awayPc = (awayTotal == 0) ? 0 : Math.round((el.away / awayTotal) * 100);
-                });
-
-                return options.fn({...cat, stat: k, isFirst: i == 0});
-            }).join("");
-        },
-        getTime: (eventTimestamp: number, startTime: number, minuteOffset: number) => {
-            const time = (eventTimestamp - startTime) / 1000;
-            const minutes = minuteOffset + Math.floor(time / 60);
-            const seconds = Math.floor(time % 60);
-            return minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
-        },
-        getRoutes: () => ["Stats", "Timeline", "Graphs"],
-        eq: (a: any, b: any) => a == b,
-        lower: (str: string) => str.toLowerCase(),
-        multiply: (a: number, b: number) => a * b,
-        add: (a: number, b: number) => a + b
-    }
+    helpers: handlebarsHelpers
 }));
 
 app.set("view engine", "hbs");
@@ -204,7 +61,6 @@ app.get('/:id/stats', async (req, res) => {
     }
 
     //add a dummy "Overall" segment
-    
     data.data.segments.unshift(buildOverallSegment(data.data.segments));
 
     res.render('stats.hbs', data)
