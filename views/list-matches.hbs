@@ -1,0 +1,15 @@
+<h1>All Matches</h1>
+
+<div class="row row-cols-1 row-cols-lg-3">
+{{#each matches}}
+    <div class="col">
+        <div class="card mb-3">
+            <div class="card-body text-center">
+                <h5 class="card-title">{{HomeTeam}} {{HomeGoals}}-{{AwayGoals}} {{AwayTeam}}</h5>
+                <p>{{fmtDate StartTime}}</p>
+                <a href="/{{ID}}" class="btn btn-primary">View Stats</a>
+            </div>
+        </div>
+    </div>
+{{/each}}
+</div>

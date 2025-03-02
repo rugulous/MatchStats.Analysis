@@ -134,3 +134,9 @@ export async function getStatTypes(){
         }))
     };
 }
+
+export async function listMatches(){
+    const {data} = await executeQuery("SELECT * FROM Matches m LEFT OUTER JOIN (SELECT MatchID, MIN(StartTime) StartTime FROM MatchSegments GROUP BY MatchID) start ON start.MatchID = m.ID ORDER BY StartTime DESC");
+
+    return data.map(d => ({...d, StartTime: new Date(d.StartTime)}));
+}
