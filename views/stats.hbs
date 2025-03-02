@@ -27,13 +27,13 @@
 
     {{#each substats}}
     <div>
-        <i>- {{@key}}</i>
+        <i>{{#if calculateTotalFrom}}└─{{else}}│{{/if}} {{@key}}</i>
     </div>
     <div>
-        <i>{{home}} ({{homePc}}%)</i>
+        <i>{{#if calculateTotalFrom}}└─&nbsp;{{/if}}{{home}} ({{homePc}}%)</i>
     </div>
     <div>
-        <i>{{away}} ({{awayPc}}%)</i>
+        <i>{{#if calculateTotalFrom}}└─&nbsp;{{/if}}{{away}} ({{awayPc}}%)</i>
     </div>
     {{/each}}
     {{/eachStatCategory}}
