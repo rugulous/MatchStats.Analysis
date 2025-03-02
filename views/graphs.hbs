@@ -57,11 +57,12 @@
 
         const forceZeroTick = {
             id: 'forceZeroTick',
-            afterTickToLabelConversion(chart) {
-                const yScale = chart.scales.y;
-                if (!yScale.ticks.includes(0)) {
-                    yScale.ticks.push(0);
-                    yScale.ticks.sort((a, b) => a - b);
+            afterUpdate(chart) {
+                const yScale = chart.scales.y.ticks;
+
+                if (!yScale.some(x => x.value == 0)) {
+                    yScale.push({value: 0, label: 0});
+                    yScale.sort((a, b) => a - b);
                 }
             }
         };
