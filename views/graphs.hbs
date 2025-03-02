@@ -60,80 +60,6 @@ Chart.register(goalIconPlugin);
 
 {{> header title=title page="Graphs"}}
 
-<h2>Outcomes</h2>
-<div class="row">
-    <div class="col-lg-6">
-        <h3>{{homeTeam}}</h3>
-        <div class="row">
-            {{#each categories}}
-            <div class="col-lg-4 mb-3">
-                <h3>{{@key}}</h3>
-                <div class="outcome-col">
-                    <canvas id="home_{{lower @key}}"></canvas>
-                </div>
-                <script>
-                    (function(){
-                        new Chart(document.getElementById("home_{{lower @key}}"), {
-                            type: 'doughnut',
-                            data: {                      
-                                labels: [{{#each substats}}"{{@key}}",{{/each}}],
-                                datasets: [{
-                                    data: [{{#each substats}}{{home}},{{/each}}]
-                                }]
-                            },
-                            options: {
-                                animation: false,
-                                plugins: {
-                                    legend: {
-                                        display: false
-                                    }
-                                }
-                            }
-                        })
-                    })();
-                </script>
-            </div>
-            {{/each}}
-        </div>
-    </div>
-
-
-    <div class="col-lg-6">
-        <h3>{{awayTeam}}</h3>
-        <div class="row">
-            {{#each categories}}
-            <div class="col-lg-4 mb-3">
-                <h4>{{@key}}</h4>
-                <div class="outcome-col">
-                    <canvas id="away_{{lower @key}}"></canvas>
-                </div>
-                <script>
-                    (function(){
-                        new Chart(document.getElementById("away_{{lower @key}}"), {
-                            type: 'doughnut',
-                            data: {                      
-                                labels: [{{#each substats}}"{{@key}}",{{/each}}],
-                                datasets: [{
-                                    data: [{{#each substats}}{{away}},{{/each}}]
-                                }]
-                            },
-                            options: {
-                                animation: false,
-                                plugins: {
-                                    legend: {
-                                        display: false
-                                    }
-                                }
-                            }
-                        })
-                    })();
-                </script>
-            </div>
-            {{/each}}
-        </div>
-    </div>
-</div>
-
     {{#each segments}}   
     <h2 class="mt-3">{{name}}</h2>
     <div class="row justify-content-center">
@@ -295,4 +221,78 @@ Chart.register(goalIconPlugin);
         </div>
     </div>
     {{/each}}
+
+
+<h2>Outcomes</h2>
+<div class="row">
+    <div class="col-lg-6">
+        <h3>{{homeTeam}}</h3>
+        <div class="row">
+            {{#each categories}}
+            <div class="col-lg-4 mb-3">
+                <h3>{{@key}}</h3>
+                <div class="outcome-col">
+                    <canvas id="home_{{lower @key}}"></canvas>
+                </div>
+                <script>
+                    (function(){
+                        new Chart(document.getElementById("home_{{lower @key}}"), {
+                            type: 'doughnut',
+                            data: {                      
+                                labels: [{{#each substats}}"{{@key}}",{{/each}}],
+                                datasets: [{
+                                    data: [{{#each substats}}{{home}},{{/each}}]
+                                }]
+                            },
+                            options: {
+                                animation: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        })
+                    })();
+                </script>
+            </div>
+            {{/each}}
+        </div>
+    </div>
+
+
+    <div class="col-lg-6">
+        <h3>{{awayTeam}}</h3>
+        <div class="row">
+            {{#each categories}}
+            <div class="col-lg-4 mb-3">
+                <h4>{{@key}}</h4>
+                <div class="outcome-col">
+                    <canvas id="away_{{lower @key}}"></canvas>
+                </div>
+                <script>
+                    (function(){
+                        new Chart(document.getElementById("away_{{lower @key}}"), {
+                            type: 'doughnut',
+                            data: {                      
+                                labels: [{{#each substats}}"{{@key}}",{{/each}}],
+                                datasets: [{
+                                    data: [{{#each substats}}{{away}},{{/each}}]
+                                }]
+                            },
+                            options: {
+                                animation: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        })
+                    })();
+                </script>
+            </div>
+            {{/each}}
+        </div>
+    </div>
 </div>
