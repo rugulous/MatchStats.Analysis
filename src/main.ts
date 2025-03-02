@@ -121,7 +121,14 @@ app.get('/:id/graphs', async (req, res) => {
                 goals[section].home++;
             }
             
-            momentum[section]++;
+            if(e.statType == "Cross"){
+                momentum[section]++;
+            } else if(e.statType == "Shot"){
+                momentum[section] += 2;
+            } else {
+                //corners don't add to the score
+            }
+
             home[section][e.statType]++;
         });
 
@@ -135,7 +142,14 @@ app.get('/:id/graphs', async (req, res) => {
                 goals[section].away++;
             }
 
-            momentum[section]--;
+            if(e.statType == "Cross"){
+                momentum[section]--;
+            } else if(e.statType == "Shot"){
+                momentum[section] -= 2;
+            } else {
+                //corners don't add to the score
+            }
+
             away[section][e.statType]++;
         });
 
@@ -146,8 +160,8 @@ app.get('/:id/graphs', async (req, res) => {
         stats.goals.push(goals);
 
         for(let i = 0; i < numSegments; i++){
-            if(momentum[i] > stats.maxMomentum){
-                stats.maxMomentum = momentum[i] ;
+            if(Math.abs(momentum[i]) > stats.maxMomentum){
+                stats.maxMomentum = Math.abs(momentum[i]);
             }
 
             if(home[i].Shot + home[i].Cross + home[i].Corner > stats.maxStats){
