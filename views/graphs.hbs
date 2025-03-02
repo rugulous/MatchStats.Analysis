@@ -136,7 +136,7 @@ Chart.register(goalIconPlugin);
 
     {{#each segments}}   
     <h2 class="mt-3">{{name}}</h2>
-    <div class="row">
+    <div class="row justify-content-center">
         <div class="col-lg-6 mb-3">
             <h3>{{../homeTeam}} Stats</h3>
             <canvas id="{{code}}_home"></canvas>
@@ -231,9 +231,10 @@ Chart.register(goalIconPlugin);
             </script>
         </div>
 
-        <div class="col-lg-6 mb-3">
+        <div class="col-lg-8 mb-3">
             <h3>Momentum</h3>
             <canvas id="{{code}}_momentum"></canvas>
+            <small class="text-center d-block">Momentum is calculated by giving each stat type a point score (Corner = 0, Cross = 1, Shot = 2) and summing them all together, then comparing both teams' totals</small>
             <script>
                 (function(){
                     const data = [{{#each (lookup ../momentum @index)}}{{this}},{{/each}}];
