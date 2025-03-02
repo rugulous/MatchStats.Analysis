@@ -1,61 +1,72 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-    const goals = {{{json goals}}};
+        const goals = {{{ json goals }}};
 
-    const pendingDraws = [];
-    const goalIcon = new Image();
-    goalIcon.src = "/Football.svg";
+        const pendingDraws = [];
+        const goalIcon = new Image();
+        goalIcon.src = "/Football.svg";
 
-    goalIcon.onload = () => {
-        while(pendingDraws.length > 0){
-            const [chart, homeOrAway, segment] = pendingDraws.pop();
-            drawGoalIcons(chart, homeOrAway, segment);
-        }
-    }
-
-    function drawGoalIcons(chart, homeOrAway, segment) {
-        if (!goalIcon.complete) {
-            pendingDraws.push([chart, homeOrAway, segment]);
-            return;
-        }
-
-        homeOrAway = homeOrAway.toLowerCase();
-        const ctx = chart.ctx;
-        const xScale = chart.scales.x;
-        const y = chart.scales.y.getPixelForTick(0);
-
-        goals[segment].forEach((goalCount, index) => {
-            const totalGoals = ((homeOrAway === "both") ? goalCount["home"] + goalCount["away"] : goalCount[homeOrAway]);
-            if (totalGoals === 0) return;
-
-            const x = xScale.getPixelForTick(index);
-            const tickWidth = (xScale.getPixelForTick(1) - xScale.getPixelForTick(0)) ?? 20;
-
-            // Calculate icon size to fit within the tick width
-            const imgSize = Math.min(Math.max(tickWidth * 0.5, 5), 16);
-            const spacing = tickWidth / totalGoals;
-
-            // Start at center, adjust to fit within the tick
-            const startX = x - ((totalGoals - 1) * spacing) / 2;
-
-            for (let i = 0; i < totalGoals; i++) {
-                ctx.drawImage(goalIcon, startX + i * spacing - (imgSize / 2), y - (imgSize / 2), imgSize, imgSize);
+        goalIcon.onload = () => {
+            while (pendingDraws.length > 0) {
+                const [chart, homeOrAway, segment] = pendingDraws.pop();
+                drawGoalIcons(chart, homeOrAway, segment);
             }
-        });
-    }
+        }
 
-    const goalIconPlugin = {
-        id: 'goalIcons',
-        afterDraw(chart, args, options) {
-            if(options.homeOrAway == undefined || options.segment == undefined){
+        function drawGoalIcons(chart, homeOrAway, segment) {
+            if (!goalIcon.complete) {
+                pendingDraws.push([chart, homeOrAway, segment]);
                 return;
             }
 
-            drawGoalIcons(chart, options.homeOrAway, options.segment);
-        }
-    };
+            homeOrAway = homeOrAway.toLowerCase();
+            const ctx = chart.ctx;
+            const xScale = chart.scales.x;
+            const y = chart.scales.y.getPixelForTick(0);
 
-Chart.register(goalIconPlugin);
+            goals[segment].forEach((goalCount, index) => {
+                const totalGoals = ((homeOrAway === "both") ? goalCount["home"] + goalCount["away"] : goalCount[homeOrAway]);
+                if (totalGoals === 0) return;
+
+                const x = xScale.getPixelForTick(index);
+                const tickWidth = (xScale.getPixelForTick(1) - xScale.getPixelForTick(0)) ?? 20;
+
+                // Calculate icon size to fit within the tick width
+                const imgSize = Math.min(Math.max(tickWidth * 0.5, 5), 16);
+                const spacing = tickWidth / totalGoals;
+
+                // Start at center, adjust to fit within the tick
+                const startX = x - ((totalGoals - 1) * spacing) / 2;
+
+                for (let i = 0; i < totalGoals; i++) {
+                    ctx.drawImage(goalIcon, startX + i * spacing - (imgSize / 2), y - (imgSize / 2), imgSize, imgSize);
+                }
+            });
+        }
+
+        const goalIconPlugin = {
+            id: 'goalIcons',
+            afterDraw(chart, args, options) {
+                if (options.homeOrAway == undefined || options.segment == undefined) {
+                    return;
+                }
+
+                drawGoalIcons(chart, options.homeOrAway, options.segment);
+            }
+        };
+
+        const forceZeroTick = {
+            id: 'forceZeroTick',
+            afterTickToLabelConversion(chart) {
+                const yScale = chart.scales.y;
+                if (!yScale.ticks.includes(0)) {
+                    yScale.ticks.push(0);
+                    yScale.ticks.sort((a, b) => a - b);
+                }
+            }
+        };
+
+        Chart.register(goalIconPlugin);
 </script>
 
 {{> header title=title page="Graphs"}}
@@ -90,10 +101,18 @@ Chart.register(goalIconPlugin);
                                 y: {
                                     suggestedMax: {{../maxStats}},
                                     stacked: true,
-                                    beginAtZero: true
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: "Total Events"
+                                    }
                                 },
                                 x: {
-                                    stacked: true
+                                    stacked: true,
+                                    title: {
+                                        display: true,
+                                        text: "Minute"
+                                    }
                                 }
                             },
                             animation: false,
@@ -138,10 +157,18 @@ Chart.register(goalIconPlugin);
                                 y: {
                                     suggestedMax: {{../maxStats}},
                                     stacked: true,
-                                    beginAtZero: true
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: "Total Events"
+                                    }
                                 },
                                 x: {
-                                    stacked: true
+                                    stacked: true,
+                                    title: {
+                                        display: true,
+                                        text: "Minute"
+                                    }
                                 }
                             },
                             animation: false,
@@ -179,6 +206,7 @@ Chart.register(goalIconPlugin);
                                 backgroundColor: '{{../colours.away}}'
                             }]
                         },
+                        plugins: [forceZeroTick],
                         options: {
                             scales: {
                                 x: {
@@ -190,14 +218,14 @@ Chart.register(goalIconPlugin);
                                 },
                                 y: {
                                     stacked: true,
-                                    min: -{{../maxMomentum}},
-                                    max: {{../maxMomentum}},
+                                    suggestedMin: -{{../maxMomentum}},
+                                    suggestedMax: {{../maxMomentum}},
                                     ticks: {
                                         callback: (value) => Math.abs(value) 
                                     },
                                     title: {
                                         display: true,
-                                        text: "Net Events"
+                                        text: "Momentum"
                                     },
                                     grid: {
                                         drawBorder: false,
