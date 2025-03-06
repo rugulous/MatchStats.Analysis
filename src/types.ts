@@ -26,4 +26,5 @@ export type Data = {
     homeScore: number;
     awayScore: number;
     segments: Segment[];
+    videoLink: string;
 };

@@ -192,7 +192,7 @@ app.get('/:id/graphs', async (req, res) => {
         [homeColours, awayColours] = [awayColours, homeColours];
     }
 
-    res.render('graphs.hbs', {title, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, colours: {home: homeColours, away: awayColours}, ...stats});
+    res.render('graphs.hbs', {title, videoLink: data.videoLink, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, colours: {home: homeColours, away: awayColours}, ...stats});
 });
 app.get('/:id/',  (req, res) => res.redirect(`/${req.params.id}/stats`));
 

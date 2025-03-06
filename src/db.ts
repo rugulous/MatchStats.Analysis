@@ -1,4 +1,5 @@
 import { createPool, QueryResult, RowDataPacket } from "mysql2/promise";
+import { Data } from "./types";
 
 const pool = createPool({
     host: process.env.DB_HOST,
@@ -68,7 +69,7 @@ export async function saveMatch(match: AppMatch){
     return matchId;
 }
 
-export async function loadMatch(id: string){
+export async function loadMatch(id: string): Promise<Data | null>{
     //split into a few queries for now, probably no reason to combine
     const match = await singleQuery("SELECT * FROM Matches WHERE ID = ?", id)
 
@@ -110,7 +111,8 @@ export async function loadMatch(id: string){
         awayTeam: match.AwayTeam,
         homeScore: match.HomeGoals,
         awayScore: match.AwayGoals,
-        segments: Object.values(segments)
+        segments: Object.values(segments),
+        videoLink: match.VideoLink
     }
 }
 
