@@ -36,7 +36,7 @@ export function categoriseEvents(events: {home: Event[], away: Event[]}){
             "On Target": [9, 8],
             "Goals": [9],
             "Blocked": [7],
-            "Off Target": [10]
+            "Off Target": [10, 16]
         },
         "Corner": {
             "Short": [11],
@@ -44,8 +44,8 @@ export function categoriseEvents(events: {home: Event[], away: Event[]}){
         },
         "Cross": {
             "Won": [1, 2],
-            "Lost": [3, 4],
-            "Missed": [5, 6]
+            "Lost": [3, 4, 13, 15],
+            "Missed": [5, 6, 14]
         }
     }
 
