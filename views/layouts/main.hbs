@@ -23,8 +23,13 @@
                 --bs-btn-active-border-color: rgb(var(--totty));
             }
 
+            .nav-pills .nav-link{
+                color: #FFF;
+            }
+
             .nav-pills .nav-link.active, .nav-pills .show>.nav-link {
-                background-color: rgb(var(--totty));
+                background-color: #fff;
+                color: rgb(var(--totty));
             }
 
             .btn:active{
@@ -81,13 +86,25 @@
                 margin-left: auto;
                 margin-right: auto;
             }
+
+            #back{
+                width: 3rem;
+                height: 3rem;
+                float: left;
+                margin-left: 2rem;
+                margin-top: 1rem;
+            }
+
+            header{
+                vertical-align: middle;
+                background-color: rgb(var(--totty));
+                color: #FFF;
+            }
         </style>
     </head>
 
     <body>
-        <div class="container">
-            {{{body}}}
-        </div>
+        {{{body}}}
     </body>
 
 </html>

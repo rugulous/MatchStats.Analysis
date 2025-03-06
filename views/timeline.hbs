@@ -1,5 +1,8 @@
 {{> header title=title page="Timeline"}}
 
+<div class="container">
+    <p><a href="/">← Back to Match List</a></p>
 {{#each data.segments}}
 {{> segmentTimeline segment=this}}
 {{/each}}
+</div>
