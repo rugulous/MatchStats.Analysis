@@ -62,6 +62,11 @@ app.get('/:id/timeline', async (req, res) => {
         return;
     }
 
+    if(!data.data.hasTimestamps){
+        res.redirect(`/${req.params.id}/stats`);
+        return;
+    }
+
     res.render('timeline.hbs', data)
 });
 app.get('/:id/stats', async (req, res) => {
@@ -84,6 +89,11 @@ app.get('/:id/graphs', async (req, res) => {
     }
 
     const {data, title} = _data;
+
+    if(!data.hasTimestamps){
+        res.redirect(`/${req.params.id}/stats`);
+        return;
+    }
 
     const stats: {
         goals: {home: number, away: number}[][]

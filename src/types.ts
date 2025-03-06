@@ -27,4 +27,5 @@ export type Data = {
     awayScore: number;
     segments: Segment[];
     videoLink: string;
+    hasTimestamps: boolean;
 };

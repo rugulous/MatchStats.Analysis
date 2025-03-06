@@ -51,7 +51,7 @@ export default {
             const seconds = Math.floor(time % 60);
             return minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
         },
-        getRoutes: () => ["Stats", "Timeline", "Graphs"],
+        getRoutes: (hasTimestamps: boolean) => hasTimestamps ? ["Stats", "Timeline", "Graphs"] : ["Stats"],
         eq: (a: any, b: any) => a == b,
         lower: (str: string) => str.toLowerCase(),
         multiply: (a: number, b: number) => a * b,

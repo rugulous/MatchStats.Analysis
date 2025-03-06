@@ -57,7 +57,7 @@ type AppMatch = {
 
 export async function saveMatch(match: AppMatch){
     const matchId = crypto.randomUUID();
-    await executeQuery("INSERT INTO Matches (ID, HomeTeam, AwayTeam, Notes, HomeGoals, AwayGoals) VALUES (?, ?, ?, ?, ?, ?)", matchId, match.homeTeam, match.awayTeam, match.notes, match.homeGoals, match.awayGoals);
+    await executeQuery("INSERT INTO Matches (ID, HomeTeam, AwayTeam, Notes, HomeGoals, AwayGoals, HasTimestamps) VALUES (?, ?, ?, ?, ?, ?, 1)", matchId, match.homeTeam, match.awayTeam, match.notes, match.homeGoals, match.awayGoals);
 
     for(const segment of match.segments){
         const segmentId = (await executeQuery("INSERT INTO MatchSegments (MatchId, SegmentType, StartTime) VALUES (?, ?, ?)", matchId, segment.code, segment.startTime)).insertId;
@@ -113,8 +113,9 @@ export async function loadMatch(id: string): Promise<Data | null>{
         homeScore: match.HomeGoals,
         awayScore: match.AwayGoals,
         segments: Object.values(segments),
-        videoLink: match.VideoLink
-    }
+        videoLink: match.VideoLink,
+        hasTimestamps: match.HasTimestamps
+    };
 }
 
 export async function getStatTypes(){
