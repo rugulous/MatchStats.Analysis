@@ -3,6 +3,6 @@
 <div class="container">
     <p><a href="/">← Back to Match List</a></p>
 {{#each data.segments}}
-{{> segmentTimeline segment=this}}
+{{> segmentTimeline segment=this videoLink=../data.videoLink}}
 {{/each}}
 </div>

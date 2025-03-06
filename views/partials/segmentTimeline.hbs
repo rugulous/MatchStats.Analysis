@@ -5,13 +5,29 @@
     <div class="col-2 d-none d-lg-flex"></div>
     <div class="col-5 col-lg-3">
         {{#if isHome}}
-        <p><b>{{getTime time ../segment.startTime ../segment.minuteOffset}}</b> - {{statType}} <i>({{outcome}})</i></p>
+        <p>
+            {{#if ../videoLink}}
+            <a href="{{../videoLink}}#t{{getTime time ../segment.startTime ../segment.minuteOffset}}" target="_blank">
+            {{/if}}
+                <b>{{getTime time ../segment.startTime ../segment.minuteOffset}}</b> - {{statType}} <i>({{outcome}})</i>
+            {{#if ../videoLink}}
+            </a>
+            {{/if}}
+        </p>
         {{/if}}
     </div>
     <div class="col-2 timeline"></div>
     <div class="col-5 col-lg-3 text-end">
         {{#unless isHome}}
-        <p><i>({{outcome}})</i> {{statType}} - <b>{{getTime time ../segment.startTime ../segment.minuteOffset}}</b></p>
+        <p>
+            {{#if ../videoLink}}
+            <a href="{{../videoLink}}#t{{getTime time ../segment.startTime ../segment.minuteOffset}}" target="_blank">
+            {{/if}}
+            <i>({{outcome}})</i> {{statType}} - <b>{{getTime time ../segment.startTime ../segment.minuteOffset}}</b>
+            {{#if ../videoLink}}
+            </a>
+            {{/if}}
+        </p>
         {{/unless}}
     </div>
     <div class="col-2 d-none d-lg-flex"></div>
