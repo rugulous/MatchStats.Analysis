@@ -7,7 +7,7 @@
         {{#if isHome}}
         <p>
             {{#if ../videoLink}}
-            <a href="{{../videoLink}}#t={{getTime time ../segment.startTime ../segment.minuteOffset}}" target="_blank">
+            <a href="{{../videoLink}}#t={{getTime time ../segment.startTime ../segment.minuteOffset ../segment.videoOffset}}" target="_blank">
             {{/if}}
                 <b>{{getTime time ../segment.startTime ../segment.minuteOffset}}</b> - {{statType}} <i>({{outcome}})</i>
             {{#if ../videoLink}}
@@ -21,7 +21,7 @@
         {{#unless isHome}}
         <p>
             {{#if ../videoLink}}
-            <a href="{{../videoLink}}#t={{getTime time ../segment.startTime ../segment.minuteOffset}}" target="_blank">
+            <a href="{{../videoLink}}#t={{getTime time ../segment.startTime ../segment.minuteOffset ../segment.videoOffset}}" target="_blank">
             {{/if}}
             <i>({{outcome}})</i> {{statType}} - <b>{{getTime time ../segment.startTime ../segment.minuteOffset}}</b>
             {{#if ../videoLink}}

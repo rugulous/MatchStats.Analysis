@@ -37,8 +37,13 @@ export default {
                 return options.fn({...cat, stat: k, isFirst: i == 0});
             }).join("");
         },
-        getTime: (eventTimestamp: number, startTime: number, minuteOffset: number) => {
-            const time = (eventTimestamp - startTime) / 1000;
+        getTime: (eventTimestamp: number, startTime: number, minuteOffset: number, videoOffsetSeconds: number = 0) => {
+            //if not passed, could be handlebars options
+            if(isNaN(videoOffsetSeconds)){
+                videoOffsetSeconds = 0;
+            }
+
+            const time = ((eventTimestamp - startTime) / 1000) + videoOffsetSeconds;
             const minutes = minuteOffset + Math.floor(time / 60);
             const seconds = Math.floor(time % 60);
             return minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
