@@ -1,17 +1,40 @@
-<div class="container">
-<h1>All Matches</h1>
+<style>
+    header.logo {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    justify-content: center; /* Center content horizontally */
+    width: 100%;
+    text-align: center;
+}
 
-<div class="row row-cols-1 row-cols-lg-3">
-{{#each matches}}
-    <div class="col">
-        <div class="card mb-3">
-            <div class="card-body text-center">
-                <h5 class="card-title">{{HomeTeam}} {{HomeGoals}}-{{AwayGoals}} {{AwayTeam}}</h5>
-                <p>{{fmtDate StartTime}}</p>
-                <a href="/{{ID}}" class="btn btn-primary">View Stats</a>
+header img {
+    height: 120px;
+    margin-right: 15px; /* Add some spacing between the image and title */
+}
+</style>
+
+<header class="text-center py-2 mb-3 logo">
+    <img src="https://tottingtonunitedfc.com/wp-content/uploads/2022/04/LogoTUFC-.png" />
+    <div class="title">
+            <h1>Match Analysis</h1>
+            <p class="fs-4 fst-italic">Totty United</p>
+    </div>
+</header>
+
+<div class="container">
+    <h2>All Matches</h2>
+
+    <div class="row row-cols-1 row-cols-lg-3">
+        {{#each matches}}
+        <div class="col">
+            <div class="card mb-3">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{HomeTeam}} {{HomeGoals}}-{{AwayGoals}} {{AwayTeam}}</h5>
+                    <p>{{fmtDate StartTime}}</p>
+                    <a href="/{{ID}}" class="btn btn-primary">View Stats</a>
+                </div>
             </div>
         </div>
+        {{/each}}
     </div>
-{{/each}}
-</div>
 </div>
