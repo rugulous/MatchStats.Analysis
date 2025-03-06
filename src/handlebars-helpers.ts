@@ -41,6 +41,9 @@ export default {
             //if not passed, could be handlebars options
             if(isNaN(videoOffsetSeconds)){
                 videoOffsetSeconds = 0;
+            } else {
+                //subtract a buffer so we can see the buildup to the event
+                videoOffsetSeconds -= 5;
             }
 
             const time = ((eventTimestamp - startTime) / 1000) + videoOffsetSeconds;
