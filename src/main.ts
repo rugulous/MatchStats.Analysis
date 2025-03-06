@@ -184,8 +184,8 @@ app.get('/:id/graphs', async (req, res) => {
     target.home -= goals.home;
     target.away -= goals.away;
 
-    let homeColours = "#2A285E";
-    let awayColours = "#D1768F";
+    let homeColours = "42, 40, 94";
+    let awayColours = "209, 118, 143";
 
     if(data.awayTeam.toLocaleLowerCase().includes("totty")){
         //swap values
