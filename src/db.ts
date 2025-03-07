@@ -9,8 +9,6 @@ const pool = createPool({
 });
 
 const run = async <T extends QueryResult>(query: string, ...params: any[]) => {
-    console.log(query);
-    console.log(params);
     const [data] = await pool.execute<T>(query, params);
     let insertId = null;
 
