@@ -1,0 +1,165 @@
+<div class="container">
+    <form method="post">
+        <h1>Add Paper Stats</h1>
+
+        <div class="row row-cols-2">
+            <div>
+                <label for="home">Home Team</label>
+                <input required name="home" class="form-control" />
+            </div>
+            <div>
+                <label for="away">Away Team</label>
+                <input required name="away" class="form-control" />
+            </div>
+
+            <div>
+                <label for="date">Date</label>
+                <input required type="datetime-local" name="date" class="form-control" />
+            </div>
+            <div>
+                <label for="notes">Notes</label>
+                <input name="notes" class="form-control" />
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-body">
+                <h2>Home</h2>
+
+                <div class="row row-cols-3">
+                    <div>
+                        <h3>Stat</h3>
+                    </div>
+                    <div>
+                        <h3>First Half</h3>
+                    </div>
+                    <div>
+                        <h3>Second Half</h3>
+                    </div>
+
+                    <div>
+                        Cross
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="h_cross_1h" />
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="h_cross_2h" />
+                    </div>
+
+                    <div>
+                        Shots
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="h_shot_1h" />
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="h_shot_2h" />
+                    </div>
+
+                    <div>
+                        On Target
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="h_target_1h" />
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="h_target_2h" />
+                    </div>
+
+                    <div>
+                        Goals
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="h_goals_1h" />
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="h_goals_2h" />
+                    </div>
+
+                    <div>
+                        Corners
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="h_corners_1h" />
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="h_corners_2h" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-body">
+                <h2>Away</h2>
+
+                <div class="row row-cols-3">
+                    <div>
+                        <h3>Stat</h3>
+                    </div>
+                    <div>
+                        <h3>First Half</h3>
+                    </div>
+                    <div>
+                        <h3>Second Half</h3>
+                    </div>
+
+                    <div>
+                        Cross
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="a_cross_1h" />
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="a_cross_2h" />
+                    </div>
+
+                    <div>
+                        Shots
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="a_shot_1h" />
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="a_shot_2h" />
+                    </div>
+
+                    <div>
+                        On Target
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="a_target_1h" />
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="a_target_2h" />
+                    </div>
+
+                    <div>
+                        Goals
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="a_goals_1h" />
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="a_goals_2h" />
+                    </div>
+
+                    <div>
+                        Corners
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="a_corners_1h" />
+                    </div>
+                    <div>
+                        <input required type="number" class="form-control" name="a_corners_2h" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <button class="btn btn-primary">Create</button>
+        </div>
+    </form>
+</div>

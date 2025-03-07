@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { getStatTypes, listMatches, loadMatch, saveMatch } from './db';
+import { createManualMatch, getStatTypes, listMatches, loadMatch, saveMatch } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -33,6 +33,7 @@ app.set("views", path.join(__dirname, "../views"));
 app.use(express.static(path.join(__dirname, "../public")));
 
 app.use(express.json());
+app.use(express.urlencoded());
 
 const getData = async (id: string) => {
     const data: Data | null = await loadMatch(id);
@@ -43,6 +44,54 @@ const getData = async (id: string) => {
     const title = `${data.homeTeam} ${data.homeScore}-${data.awayScore} ${data.awayTeam}`;
     return {data, title};
 }
+
+app.get("/paper-stats", (_, res) => res.render("paper-stats.hbs", {
+    title: "Add Paper Stats"
+}));
+
+app.post("/paper-stats", async (req, res) => {
+    console.log(req.body);
+
+    const id = await createManualMatch({
+        homeTeam: req.body.home,
+        awayTeam: req.body.away,
+        date: req.body.date,
+        notes: req.body.notes,
+        homeEvents: {
+            firstHalf: {
+                cross: parseInt(req.body.h_cross_1h),
+                shot: parseInt(req.body.h_shot_1h),
+                shotOnTarget: parseInt(req.body.h_target_1h),
+                goal: parseInt(req.body.h_goals_1h),
+                corner: parseInt(req.body.h_corners_1h)
+            },
+            secondHalf: {
+                cross: parseInt(req.body.h_cross_2h),
+                shot: parseInt(req.body.h_shot_2h),
+                shotOnTarget: parseInt(req.body.h_target_2h),
+                goal: parseInt(req.body.h_goals_2h),
+                corner: parseInt(req.body.h_corners_2h)
+            }
+        },
+        awayEvents: {
+            firstHalf: {
+                cross: parseInt(req.body.a_cross_1h),
+                shot: parseInt(req.body.a_shot_1h),
+                shotOnTarget: parseInt(req.body.a_target_1h),
+                goal: parseInt(req.body.a_goals_1h),
+                corner: parseInt(req.body.a_corners_1h)
+            },
+            secondHalf: {
+                cross: parseInt(req.body.a_cross_2h),
+                shot: parseInt(req.body.a_shot_2h),
+                shotOnTarget: parseInt(req.body.a_target_2h),
+                goal: parseInt(req.body.a_goals_2h),
+                corner: parseInt(req.body.a_corners_2h)
+            }
+        }
+    });
+    res.redirect(`/${id}`);
+});
 
 app.get("/", async (_, res) => {
     res.render('list-matches.hbs', {

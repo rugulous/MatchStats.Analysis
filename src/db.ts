@@ -9,6 +9,8 @@ const pool = createPool({
 });
 
 const run = async <T extends QueryResult>(query: string, ...params: any[]) => {
+    console.log(query);
+    console.log(params);
     const [data] = await pool.execute<T>(query, params);
     let insertId = null;
 
@@ -143,4 +145,72 @@ export async function listMatches(){
     const {data} = await executeQuery("SELECT * FROM Matches m LEFT OUTER JOIN (SELECT MatchID, MIN(StartTime) StartTime FROM MatchSegments GROUP BY MatchID) start ON start.MatchID = m.ID ORDER BY StartTime DESC");
 
     return data.map(d => ({...d, StartTime: new Date(d.StartTime)}));
+}
+
+type SegmentEvents = {
+    cross: number;
+    shot: number;
+    shotOnTarget: number;
+    goal: number;
+    corner: number;
+}
+
+type TeamEvents = {
+    firstHalf: SegmentEvents;
+    secondHalf: SegmentEvents;
+}
+
+type MatchData = {
+    homeTeam: string;
+    awayTeam: string;
+    date: string;
+    notes: string;
+    homeEvents: TeamEvents;
+    awayEvents: TeamEvents;
+}
+
+export async function createManualMatch(matchData: MatchData){
+    console.log(matchData);
+
+    const matchId = crypto.randomUUID();
+    const segmentStart = new Date(matchData.date);
+    await executeQuery("INSERT INTO Matches (ID, HomeTeam, AwayTeam, Notes, HomeGoals, AwayGoals, HasTimestamps) VALUES (?, ?, ?, ?, ?, ?, 0)", matchId, matchData.homeTeam, matchData.awayTeam, matchData.notes, matchData.homeEvents.firstHalf.goal + matchData.homeEvents.secondHalf.goal, matchData.awayEvents.firstHalf.goal + matchData.awayEvents.secondHalf.goal);
+
+    await createSegment(matchId, segmentStart.getTime(), matchData.homeEvents, matchData.awayEvents, 'firstHalf', '1H');
+    segmentStart.setHours(segmentStart.getHours() + 1);
+    await createSegment(matchId, segmentStart.getTime(), matchData.homeEvents, matchData.awayEvents, "secondHalf", "2H");
+    return matchId;
+}
+
+async function createSegment(matchId: string, start: number, homeEvents: TeamEvents, awayEvents: TeamEvents, segment: keyof TeamEvents, dbKey: string){
+    const {insertId} = await executeQuery("INSERT INTO MatchSegments (MatchID, SegmentType, StartTime) VALUES (?, ?, ?)", matchId, dbKey, start);
+    if(!insertId){
+        throw new Error("FAILURE");
+    }
+
+    await insertEvents(insertId, homeEvents, segment, true);
+    await insertEvents(insertId, awayEvents, segment, false);
+}
+
+async function insertEvents(segmentId: number, events: TeamEvents, segmentType: keyof TeamEvents, isHome: boolean){
+    for(let i = 0; i < events[segmentType].cross; i++){
+        await executeQuery("INSERT INTO MatchStats (MatchSegmentID, IsHome, StatTypeID, OutcomeID) VALUES (?, ?, 1, 17)", segmentId, isHome);
+    }
+
+    for(let i = 0; i < events[segmentType].corner; i++){
+        await executeQuery("INSERT INTO MatchStats (MatchSegmentID, IsHome, StatTypeID, OutcomeID) VALUES (?, ?, 3, 19)", segmentId, isHome);
+    }
+
+    //shots are more complex
+    for(let i = 0; i < events[segmentType].goal; i++){
+        await executeQuery("INSERT INTO MatchStats (MatchSegmentID, IsHome, StatTypeID, OutcomeID) VALUES (?, ?, 2, 9)", segmentId, isHome);
+    }
+
+    for(let i = 0; i < events[segmentType].shotOnTarget - events[segmentType].goal; i++){
+        await executeQuery("INSERT INTO MatchStats (MatchSegmentID, IsHome, StatTypeID, OutcomeID) VALUES (?, ?, 2, 8)", segmentId, isHome);
+    }
+
+    for(let i = 0; i < events[segmentType].shot - events[segmentType].shotOnTarget; i++){
+        await executeQuery("INSERT INTO MatchStats (MatchSegmentID, IsHome, StatTypeID, OutcomeID) VALUES (?, ?, 2, 10)", segmentId, isHome);
+    }
 }
