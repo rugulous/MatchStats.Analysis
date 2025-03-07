@@ -33,7 +33,7 @@ app.set("views", path.join(__dirname, "../views"));
 app.use(express.static(path.join(__dirname, "../public")));
 
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({extended: true}));
 
 const getData = async (id: string) => {
     const data: Data | null = await loadMatch(id);
@@ -235,7 +235,7 @@ app.get('/:id/graphs', async (req, res) => {
     });
 
     const overall = buildOverallSegment(data.segments);
-    const categories = categoriseEvents(overall.events);
+    const categories = categoriseEvents(overall.events, data.hasTimestamps);
 
     //for this specific situation, we want to class goals and shots on target as different events (whereas previously they've been a percentage of each other)
     const target = categories.Shot.substats['On Target'];

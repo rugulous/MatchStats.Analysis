@@ -14,8 +14,8 @@ export default {
 
             return combined.map(event => options.fn(event)).join("");
         },
-        eachStatCategory: (segment: Segment, options: Handlebars.HelperOptions) => {
-            const categories = categoriseEvents(segment.events);
+        eachStatCategory: (segment: Segment, viaApp: boolean, options: Handlebars.HelperOptions) => {
+            const categories = categoriseEvents(segment.events, viaApp);
 
             return Object.keys(categories).map((k, i) => {
                 const cat = categories[k];

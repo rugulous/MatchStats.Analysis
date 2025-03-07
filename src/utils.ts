@@ -1,6 +1,6 @@
 import type { Event } from "./types";
 
-export function categoriseEvents(events: {home: Event[], away: Event[]}){
+export function categoriseEvents(events: {home: Event[], away: Event[]}, viaApp: boolean){
     const categories: { [key: string]: any } = {
         "Cross": {
             home: 0,
@@ -49,6 +49,8 @@ export function categoriseEvents(events: {home: Event[], away: Event[]}){
         }
     }
 
+
+
     events.home.forEach(event => {
         categories[event.statType].home++;
         Object.keys(substatConfig[event.statType]).forEach(k => {
@@ -66,6 +68,18 @@ export function categoriseEvents(events: {home: Event[], away: Event[]}){
             }
         })
     });
+
+    if(!viaApp){
+        const statsToKeep = ["On Target", "Goals", "Off Target"];
+
+        categories.Cross.substats = {};
+        categories.Corner.substats = {};
+        Object.keys(categories.Shot.substats).forEach(k => {
+            if(!statsToKeep.includes(k)){
+                delete categories.Shot.substats[k];
+            }
+        });
+    }
 
     return categories;
 }
