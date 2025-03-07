@@ -57,6 +57,7 @@ app.post("/paper-stats", async (req, res) => {
         awayTeam: req.body.away,
         date: req.body.date,
         notes: req.body.notes,
+        videoLink: req.body.video,
         homeEvents: {
             firstHalf: {
                 cross: parseInt(req.body.h_cross_1h),

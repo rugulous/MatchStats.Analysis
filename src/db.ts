@@ -21,7 +21,7 @@ const run = async <T extends QueryResult>(query: string, ...params: any[]) => {
     return {data, insertId}
 }
 
-const executeQuery = async (query: string, ...params: any[]) => {
+const executeQuery = async (query: string, ...params: ({} | null)[]) => {
     return await run<RowDataPacket[]>(query, ...params);
 }
 
@@ -164,9 +164,10 @@ type MatchData = {
     homeTeam: string;
     awayTeam: string;
     date: string;
-    notes: string;
+    notes?: string;
     homeEvents: TeamEvents;
     awayEvents: TeamEvents;
+    videoLink?: string;
 }
 
 export async function createManualMatch(matchData: MatchData){
@@ -174,7 +175,7 @@ export async function createManualMatch(matchData: MatchData){
 
     const matchId = crypto.randomUUID();
     const segmentStart = new Date(matchData.date);
-    await executeQuery("INSERT INTO Matches (ID, HomeTeam, AwayTeam, Notes, HomeGoals, AwayGoals, HasTimestamps) VALUES (?, ?, ?, ?, ?, ?, 0)", matchId, matchData.homeTeam, matchData.awayTeam, matchData.notes, matchData.homeEvents.firstHalf.goal + matchData.homeEvents.secondHalf.goal, matchData.awayEvents.firstHalf.goal + matchData.awayEvents.secondHalf.goal);
+    await executeQuery("INSERT INTO Matches (ID, HomeTeam, AwayTeam, Notes, HomeGoals, AwayGoals, VideoLink, HasTimestamps) VALUES (?, ?, ?, ?, ?, ?, ?, 0)", matchId, matchData.homeTeam, matchData.awayTeam, matchData.notes ?? null, matchData.homeEvents.firstHalf.goal + matchData.homeEvents.secondHalf.goal, matchData.awayEvents.firstHalf.goal + matchData.awayEvents.secondHalf.goal, matchData.videoLink ?? null);
 
     await createSegment(matchId, segmentStart.getTime(), matchData.homeEvents, matchData.awayEvents, 'firstHalf', '1H');
     segmentStart.setHours(segmentStart.getHours() + 1);
