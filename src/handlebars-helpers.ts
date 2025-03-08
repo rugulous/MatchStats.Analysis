@@ -56,5 +56,5 @@ export default {
         lower: (str: string) => str.toLowerCase(),
         multiply: (a: number, b: number) => a * b,
         add: (a: number, b: number) => a + b,
-        fmtDate: (date: Date) => date.toLocaleString()
+        fmtDate: (date: Date) => date.toLocaleString('en-GB')
     }
