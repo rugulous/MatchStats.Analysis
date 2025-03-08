@@ -107,7 +107,16 @@ app.get("/stat-sync", async (_, res) => {
 
 app.get("/all-stats", async (_, res) => {
     const data = await loadAllStats();
-    res.render('stats.hbs', {title: "All Stats", data: {segments: [data], hasTimestamps: true, hideNav: true}});
+    res.render('stats.hbs', {
+        title: "All Stats",
+        data: {
+            homeTeam: "Totty",
+            awayTeam: "Opponents",
+            segments: [data],
+            hasTimestamps: true,
+            hideNav: true
+        }
+    });
 });
 
 app.get('/:id/timeline', async (req, res) => {
