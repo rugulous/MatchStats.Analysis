@@ -1,5 +1,6 @@
 <header class="text-center py-1 mb-3">
     <h1 id="title">{{title}}</h1>
+    {{#unless hideNav}}
     <ul class="nav nav-pills justify-content-center my-3">
         {{#each (getRoutes hasTimestamps)}}
         <li class="nav-item me-1">
@@ -25,4 +26,5 @@
         </li>
         {{/if}}
     </ul>
+    {{/unless}}
 </header>

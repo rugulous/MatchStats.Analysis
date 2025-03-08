@@ -8,7 +8,8 @@ export function categoriseEvents(events: {home: Event[], away: Event[]}, viaApp:
             substats: {
                 "Won": { home: 0, away: 0 },
                 "Lost": { home: 0, away: 0 },
-                "Missed": { home: 0, away: 0 }
+                "Missed": { home: 0, away: 0 },
+                "Unknown": {home: 0, away: 0}
             }
         },
         "Shot":  {
@@ -18,7 +19,8 @@ export function categoriseEvents(events: {home: Event[], away: Event[]}, viaApp:
                 "On Target": { home: 0, away: 0 },
                 "Goals": { home: 0, away: 0, calculateTotalFrom: "On Target" },
                 "Blocked": { home: 0, away: 0 },
-                "Off Target": { home: 0, away: 0 }
+                "Off Target": { home: 0, away: 0 },
+                "Unknown": {home: 0, away: 0}
             }
         },
         "Corner":  {
@@ -26,7 +28,8 @@ export function categoriseEvents(events: {home: Event[], away: Event[]}, viaApp:
             away: 0,
             substats: {
                 "Short": { home: 0, away: 0 },
-                "Crossed": { home: 0, away: 0 }
+                "Crossed": { home: 0, away: 0 },
+                "Unknown": {home: 0, away: 0}
             }
         }
     }
@@ -36,16 +39,19 @@ export function categoriseEvents(events: {home: Event[], away: Event[]}, viaApp:
             "On Target": [9, 8],
             "Goals": [9],
             "Blocked": [7],
-            "Off Target": [10, 16]
+            "Off Target": [10, 16],
+            "Unknown": [18]
         },
         "Corner": {
             "Short": [11],
-            "Crossed": [12]
+            "Crossed": [12],
+            "Unknown": [19]
         },
         "Cross": {
             "Won": [1, 2],
             "Lost": [3, 4, 13, 15],
-            "Missed": [5, 6, 14]
+            "Missed": [5, 6, 14],
+            "Unknown": [17]
         }
     }
 
@@ -77,6 +83,14 @@ export function categoriseEvents(events: {home: Event[], away: Event[]}, viaApp:
         Object.keys(categories.Shot.substats).forEach(k => {
             if(!statsToKeep.includes(k)){
                 delete categories.Shot.substats[k];
+            }
+        });
+    } else {
+        Object.keys(categories).forEach(k => {
+            //we want to remove unknowns, UNLESS there actually are any!
+            const {home, away} = categories[k].substats.Unknown;
+            if(home + away == 0){
+                delete categories[k].substats.Unknown;
             }
         });
     }

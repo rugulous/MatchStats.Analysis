@@ -7,6 +7,7 @@ export type Event = {
     time: number;
     outcomeId: number;
     outcome: string;
+    isGoal: boolean;
 }
 
 export type Segment = {
@@ -14,6 +15,8 @@ export type Segment = {
     code: string;
     startTime: number;
     duration: 45 | 15;
+    minuteOffset: number;
+    videoOffset: number | null;
     events: {
         home: Event[];
         away: Event[];

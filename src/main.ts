@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getStatTypes, listMatches, loadMatch, saveMatch } from './db';
+import { createManualMatch, getStatTypes, listMatches, loadAllStats, loadMatch, saveMatch } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -17,7 +17,9 @@ function buildOverallSegment(segments: Segment[]): Segment{
         startTime: 0,
         events: {home, away},
         duration: 45,
-        code: ""
+        code: "",
+        minuteOffset: 0,
+        videoOffset: null
     };
 }
 
@@ -50,8 +52,6 @@ app.get("/paper-stats", (_, res) => res.render("paper-stats.hbs", {
 }));
 
 app.post("/paper-stats", async (req, res) => {
-    console.log(req.body);
-
     const id = await createManualMatch({
         homeTeam: req.body.home,
         awayTeam: req.body.away,
@@ -103,6 +103,11 @@ app.get("/", async (_, res) => {
 
 app.get("/stat-sync", async (_, res) => {
     res.json(await getStatTypes());
+});
+
+app.get("/all-stats", async (_, res) => {
+    const data = await loadAllStats();
+    res.render('stats.hbs', {title: "All Stats", data: {segments: [data], hasTimestamps: true, hideNav: true}});
 });
 
 app.get('/:id/timeline', async (req, res) => {

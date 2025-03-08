@@ -1,5 +1,5 @@
 import { createPool, QueryResult, RowDataPacket } from "mysql2/promise";
-import { Data } from "./types";
+import { Data, Event, Segment } from "./types";
 
 const pool = createPool({
     host: process.env.DB_HOST,
@@ -77,9 +77,9 @@ export async function loadMatch(id: string): Promise<Data | null>{
         return null;
     }
 
-    const segments: {[key: number]: any} = {};
+    const segments: {[key: number]: Segment} = {};
 
-    (await executeQuery("SELECT ms.ID, st.Name, st.Code, ms.StartTime, st.MinuteOffset, st.Duration, s.IsHome, s.StatTypeID, stat.Description AS StatType, s.Timestamp, s.OutcomeID, o.Name AS Outcome, ms.VideoSecondOffset, o.IsGoal FROM MatchSegments ms INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType INNER JOIN MatchStats s ON s.MatchSegmentId = ms.ID INNER JOIN StatTypes stat ON stat.ID = s.StatTypeID INNER JOIN Outcomes o ON o.ID = s.OutcomeID WHERE ms.MatchID = ?", id)).data.forEach(row => {
+    (await executeQuery("SELECT ms.ID, st.Name, st.Code, ms.StartTime, st.MinuteOffset, st.Duration, s.ID AS StatID, s.IsHome, s.StatTypeID, stat.Description AS StatType, s.Timestamp, s.OutcomeID, o.Name AS Outcome, ms.VideoSecondOffset, o.IsGoal FROM MatchSegments ms INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType INNER JOIN MatchStats s ON s.MatchSegmentId = ms.ID INNER JOIN StatTypes stat ON stat.ID = s.StatTypeID INNER JOIN Outcomes o ON o.ID = s.OutcomeID WHERE ms.MatchID = ?", id)).data.forEach(row => {
         if(!segments.hasOwnProperty(row.ID)){
             segments[row.ID] = {
                 name: row.Name,
@@ -92,7 +92,8 @@ export async function loadMatch(id: string): Promise<Data | null>{
             }
         }
 
-        const event = {
+        const event: Event = {
+            id: row.StatID,
             statTypeID: row.StatTypeID,
             statType: row.StatType,
             time: row.Timestamp,
@@ -170,8 +171,6 @@ type MatchData = {
 }
 
 export async function createManualMatch(matchData: MatchData){
-    console.log(matchData);
-
     const matchId = crypto.randomUUID();
     const segmentStart = new Date(matchData.date);
     await executeQuery("INSERT INTO Matches (ID, HomeTeam, AwayTeam, Notes, HomeGoals, AwayGoals, VideoLink, HasTimestamps) VALUES (?, ?, ?, ?, ?, ?, ?, 0)", matchId, matchData.homeTeam, matchData.awayTeam, matchData.notes ?? null, matchData.homeEvents.firstHalf.goal + matchData.homeEvents.secondHalf.goal, matchData.awayEvents.firstHalf.goal + matchData.awayEvents.secondHalf.goal, matchData.videoLink ?? null);
@@ -213,4 +212,38 @@ async function insertEvents(segmentId: number, events: TeamEvents, segmentType: 
     for(let i = 0; i < events[segmentType].shot - events[segmentType].shotOnTarget; i++){
         await executeQuery("INSERT INTO MatchStats (MatchSegmentID, IsHome, StatTypeID, OutcomeID) VALUES (?, ?, 2, 10)", segmentId, isHome);
     }
+}
+
+export async function loadAllStats(){
+    const {data} = await executeQuery("SELECT st.Name, st.Code, st.MinuteOffset, st.Duration, s.ID AS StatID, CASE WHEN m.HomeTeam LIKE '%Totty%' OR m.AwayTeam LIKE '%Totty%' THEN 1 ELSE 0 END AS IsHome, s.StatTypeID, stat.Description AS StatType, s.Timestamp, s.OutcomeID, o.Name AS Outcome, o.IsGoal FROM MatchSegments ms INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType INNER JOIN MatchStats s ON s.MatchSegmentId = ms.ID INNER JOIN StatTypes stat ON stat.ID = s.StatTypeID INNER JOIN Outcomes o ON o.ID = s.OutcomeID INNER JOIN Matches m ON m.ID = ms.MatchID");
+
+    const segment: Segment = {
+        name: "Overall",
+        code: "OR",
+        startTime: 0,
+        minuteOffset: 0,
+        duration: 45,
+        videoOffset: null,
+        events: {home: [], away: []}
+    };
+
+    data.forEach(row => {
+        const event: Event = {
+            id: row.StatID,
+            statTypeID: row.StatTypeID,
+            statType: row.StatType,
+            time: row.Timestamp,
+            outcomeId: row.OutcomeID,
+            outcome: row.Outcome,
+            isGoal: !!row.IsGoal
+        };
+
+        if(row.IsHome){
+            segment.events.home.push(event);
+        } else {
+            segment.events.away.push(event);
+        }
+    });
+
+    return segment;
 }
