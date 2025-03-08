@@ -9,7 +9,7 @@
             {{#if ../videoLink}}
             <a href="{{../videoLink}}#t={{getTime time ../segment.startTime ../segment.minuteOffset ../segment.videoOffset}}" target="_blank">
             {{/if}}
-                <b>{{getTime time ../segment.startTime ../segment.minuteOffset}}</b> - {{statType}} <i>({{outcome}})</i>
+                <b>{{getTime time ../segment.startTime ../segment.minuteOffset}}</b> - {{statType}} <i>({{outcome}}) {{#if isGoal}}<img src="/Football.svg" width="16" />{{/if}}</i>
             {{#if ../videoLink}}
             </a>
             {{/if}}

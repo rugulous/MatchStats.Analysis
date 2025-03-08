@@ -79,7 +79,7 @@ export async function loadMatch(id: string): Promise<Data | null>{
 
     const segments: {[key: number]: any} = {};
 
-    (await executeQuery("SELECT ms.ID, st.Name, st.Code, ms.StartTime, st.MinuteOffset, st.Duration, s.IsHome, s.StatTypeID, stat.Description AS StatType, s.Timestamp, s.OutcomeID, o.Name AS Outcome, ms.VideoSecondOffset FROM MatchSegments ms INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType INNER JOIN MatchStats s ON s.MatchSegmentId = ms.ID INNER JOIN StatTypes stat ON stat.ID = s.StatTypeID INNER JOIN Outcomes o ON o.ID = s.OutcomeID WHERE ms.MatchID = ?", id)).data.forEach(row => {
+    (await executeQuery("SELECT ms.ID, st.Name, st.Code, ms.StartTime, st.MinuteOffset, st.Duration, s.IsHome, s.StatTypeID, stat.Description AS StatType, s.Timestamp, s.OutcomeID, o.Name AS Outcome, ms.VideoSecondOffset, o.IsGoal FROM MatchSegments ms INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType INNER JOIN MatchStats s ON s.MatchSegmentId = ms.ID INNER JOIN StatTypes stat ON stat.ID = s.StatTypeID INNER JOIN Outcomes o ON o.ID = s.OutcomeID WHERE ms.MatchID = ?", id)).data.forEach(row => {
         if(!segments.hasOwnProperty(row.ID)){
             segments[row.ID] = {
                 name: row.Name,
@@ -97,7 +97,8 @@ export async function loadMatch(id: string): Promise<Data | null>{
             statType: row.StatType,
             time: row.Timestamp,
             outcomeId: row.OutcomeID,
-            outcome: row.Outcome
+            outcome: row.Outcome,
+            isGoal: !!row.IsGoal
         };
 
         if(row.IsHome){
