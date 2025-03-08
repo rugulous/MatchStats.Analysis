@@ -114,7 +114,7 @@ export async function loadMatch(id: string): Promise<Data | null>{
         awayScore: match.AwayGoals,
         segments: Object.values(segments),
         videoLink: match.VideoLink,
-        hasTimestamps: match.HasTimestamps
+        hasTimestamps: !!match.HasTimestamps
     };
 }
 
