@@ -60,4 +60,8 @@ header img {
         </div>
         {{/each}}
     </div>
+
+    <h2 class="mt-3">All Stats</h2>
+    <i><small>(starting from {{fmtDate allStats.startTime}})</small></i>
+    {{> statTable homeTeam="Totty" awayTeam="Opposition" hasTimestamps=true segment=allStats}}
 </div>

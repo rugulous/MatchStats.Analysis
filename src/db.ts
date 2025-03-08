@@ -215,12 +215,12 @@ async function insertEvents(segmentId: number, events: TeamEvents, segmentType: 
 }
 
 export async function loadAllStats(){
-    const {data} = await executeQuery("SELECT st.Name, st.Code, st.MinuteOffset, st.Duration, s.ID AS StatID, CASE WHEN (m.HomeTeam LIKE '%Totty%' AND IsHome = 1) OR (m.AwayTeam LIKE '%Totty%' AND IsHome = 0) THEN 1 ELSE 0 END AS IsHome, s.StatTypeID, stat.Description AS StatType, s.Timestamp, s.OutcomeID, o.Name AS Outcome, o.IsGoal FROM MatchSegments ms INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType INNER JOIN MatchStats s ON s.MatchSegmentId = ms.ID INNER JOIN StatTypes stat ON stat.ID = s.StatTypeID INNER JOIN Outcomes o ON o.ID = s.OutcomeID INNER JOIN Matches m ON m.ID = ms.MatchID");
+    const {data} = await executeQuery("SELECT ms.StartTime, st.Name, st.Code, st.MinuteOffset, st.Duration, s.ID AS StatID, CASE WHEN (m.HomeTeam LIKE '%Totty%' AND IsHome = 1) OR (m.AwayTeam LIKE '%Totty%' AND IsHome = 0) THEN 1 ELSE 0 END AS IsHome, s.StatTypeID, stat.Description AS StatType, s.Timestamp, s.OutcomeID, o.Name AS Outcome, o.IsGoal FROM MatchSegments ms INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType INNER JOIN MatchStats s ON s.MatchSegmentId = ms.ID INNER JOIN StatTypes stat ON stat.ID = s.StatTypeID INNER JOIN Outcomes o ON o.ID = s.OutcomeID INNER JOIN Matches m ON m.ID = ms.MatchID ORDER BY ms.StartTime");
 
     const segment: Segment = {
         name: "Overall",
         code: "OR",
-        startTime: 0,
+        startTime: data[0].StartTime,
         minuteOffset: 0,
         duration: 45,
         videoOffset: null,

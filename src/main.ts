@@ -95,28 +95,17 @@ app.post("/paper-stats", async (req, res) => {
 });
 
 app.get("/", async (_, res) => {
+    const stats = await loadAllStats();
+
     res.render('list-matches.hbs', {
         title: "All Matches",
-        matches: await listMatches()
+        matches: await listMatches(),
+        allStats: {...stats, startTime: new Date(stats.startTime)}
     });
 });
 
 app.get("/stat-sync", async (_, res) => {
     res.json(await getStatTypes());
-});
-
-app.get("/all-stats", async (_, res) => {
-    const data = await loadAllStats();
-    res.render('stats.hbs', {
-        title: "All Stats",
-        data: {
-            homeTeam: "Totty",
-            awayTeam: "Opponents",
-            segments: [data],
-            hasTimestamps: true,
-            hideNav: true
-        }
-    });
 });
 
 app.get('/:id/timeline', async (req, res) => {

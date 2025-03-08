@@ -23,20 +23,22 @@
                 --bs-btn-active-border-color: rgb(var(--totty));
             }
 
-            .nav-pills .nav-link{
+            .nav-pills .nav-link {
                 color: #FFF;
             }
 
-            .nav-pills .nav-link.disabled{
+            .nav-pills .nav-link.disabled {
                 color: #CCC;
             }
 
-            .nav-pills .nav-link.active, .nav-pills .show>.nav-link, .nav-pills .nav-link:hover {
+            .nav-pills .nav-link.active,
+            .nav-pills .show>.nav-link,
+            .nav-pills .nav-link:hover {
                 background-color: #fff;
                 color: rgb(var(--totty));
             }
 
-            .btn:active{
+            .btn:active {
                 position: relative;
                 top: 1px;
             }
@@ -77,21 +79,21 @@
                 margin-right: -50%;
             }
 
-            body{
+            body {
                 padding-bottom: 3rem;
             }
 
-            .outcome-col{
+            .outcome-col {
                 position: relative;
                 max-height: 200px;
             }
 
-            .outcome-col canvas{
+            .outcome-col canvas {
                 margin-left: auto;
                 margin-right: auto;
             }
 
-            #back{
+            #back {
                 width: 3rem;
                 height: 3rem;
                 float: left;
@@ -99,27 +101,47 @@
                 margin-top: 1rem;
             }
 
-            header{
+            header {
                 vertical-align: middle;
                 background-color: rgb(var(--totty));
                 color: #FFF;
             }
 
-            .outcomes-home{
+            .outcomes-home {
                 background-color: rgba(var(--home), 0.4);
             }
 
-            .outcomes-away{
+            .outcomes-away {
                 background-color: rgba(var(--away), 0.4);
             }
 
-            h2{
+            h2 {
                 text-decoration: underline;
             }
 
-            .icons svg{
+            .icons svg {
                 opacity: 0.6;
                 transform: skew(-14deg);
+            }
+
+            .stat,
+            .substat,
+            .subsubstat {
+                color: #FFF;
+                background-color: rgba(var(--totty), var(--opacity, 1));
+            }
+
+            .substat {
+                --opacity: 0.8;
+            }
+
+            .subsubstat {
+                --opacity: 0.6;
+            }
+
+            .subsubstat div {
+                padding-left: 2rem;
+                font-style: italic;
             }
         </style>
     </head>

@@ -1,67 +1,10 @@
-<style>
-.stat,.substat,.subsubstat{
-    color: #FFF;
-    background-color: rgba(var(--totty), var(--opacity,1));
-}
-
-.substat{
-    --opacity: 0.8;
-}
-
-.subsubstat{
-    --opacity: 0.6;
-}
-
-.subsubstat div{
-    padding-left: 2rem;
-    font-style: italic;
-}
-</style>
-
 {{> header title=title page="Stats" videoLink=data.videoLink hasTimestamps=data.hasTimestamps hideNav=data.hideNav}}
 
 <div class="container">
     <p><a href="/">← Back to Match List</a></p>
 {{#each data.segments}}
 <h2 class="mt-3 text-center">{{name}}</h2>
+{{> statTable homeTeam=../data.homeTeam awayTeam=../data.awayTeam hasTimestamps=../data.hasTimestamps segment=this}}
 
-<div class="row header row-cols-3">
-    <div>
-    </div>
-    <div>
-        <h3>{{../data.homeTeam}}</h3>
-    </div>
-    <div>
-        <h3>{{../data.awayTeam}}</h3>
-    </div>
-</div>
-
-    {{#eachStatCategory this ../data.hasTimestamps}}
-    <div class="row stat row-cols-3{{#unless isFirst}} mt-3{{/unless}}">
-    <div>
-        <b>{{stat}}</b>
-    </div>
-    <div>
-        <b>{{home}}</b>
-    </div>
-    <div>
-        <b>{{away}}</b>
-    </div>
-    </div>
-
-    {{#each substats}}
-    <div class="row {{#if calculateTotalFrom}}sub{{/if}}substat row-cols-3">
-    <div>
-        {{@key}}
-    </div>
-    <div>
-        {{home}} ({{homePc}}%)
-    </div>
-    <div>
-        {{away}} ({{awayPc}}%)
-    </div>
-    </div>
-    {{/each}}
-    {{/eachStatCategory}}
 {{/each}}
 </div>

@@ -1,0 +1,38 @@
+<div class="row header row-cols-3">
+    <div>
+    </div>
+    <div>
+        <h3>{{homeTeam}}</h3>
+    </div>
+    <div>
+        <h3>{{awayTeam}}</h3>
+    </div>
+</div>
+
+    {{#eachStatCategory segment hasTimestamps}}
+    <div class="row stat row-cols-3{{#unless isFirst}} mt-3{{/unless}}">
+    <div>
+        <b>{{stat}}</b>
+    </div>
+    <div>
+        <b>{{home}}</b>
+    </div>
+    <div>
+        <b>{{away}}</b>
+    </div>
+    </div>
+
+    {{#each substats}}
+    <div class="row {{#if calculateTotalFrom}}sub{{/if}}substat row-cols-3">
+    <div>
+        {{@key}}
+    </div>
+    <div>
+        {{home}} ({{homePc}}%)
+    </div>
+    <div>
+        {{away}} ({{awayPc}}%)
+    </div>
+    </div>
+    {{/each}}
+    {{/eachStatCategory}}
