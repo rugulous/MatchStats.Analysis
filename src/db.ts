@@ -215,40 +215,6 @@ async function insertEvents(segmentId: number, events: TeamEvents, segmentType: 
     }
 }
 
-export async function loadAllStats(){
-    const {data} = await executeQuery("SELECT ms.StartTime, st.Name, st.Code, st.MinuteOffset, st.Duration, s.ID AS StatID, CASE WHEN (m.HomeTeam LIKE '%Totty%' AND IsHome = 1) OR (m.AwayTeam LIKE '%Totty%' AND IsHome = 0) THEN 1 ELSE 0 END AS IsHome, s.StatTypeID, stat.Description AS StatType, s.Timestamp, s.OutcomeID, o.Name AS Outcome, o.IsGoal FROM MatchSegments ms INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType INNER JOIN MatchStats s ON s.MatchSegmentId = ms.ID INNER JOIN StatTypes stat ON stat.ID = s.StatTypeID INNER JOIN Outcomes o ON o.ID = s.OutcomeID INNER JOIN Matches m ON m.ID = ms.MatchID ORDER BY ms.StartTime");
-
-    const segment: Segment = {
-        name: "Overall",
-        code: "OR",
-        startTime: data[0].StartTime,
-        minuteOffset: 0,
-        duration: 45,
-        videoOffset: null,
-        events: {home: [], away: []}
-    };
-
-    data.forEach(row => {
-        const event: Event = {
-            id: row.StatID,
-            statTypeID: row.StatTypeID,
-            statType: row.StatType,
-            time: row.Timestamp,
-            outcomeId: row.OutcomeID,
-            outcome: row.Outcome,
-            isGoal: !!row.IsGoal
-        };
-
-        if(row.IsHome){
-            segment.events.home.push(event);
-        } else {
-            segment.events.away.push(event);
-        }
-    });
-
-    return segment;
-}
-
 export async function getTimeline(matchId: string){
     const {data} = await executeQuery("SELECT m.HasTimestamps, m.VideoLink, m.HomeTeam, m.HomeGoals, m.AwayTeam, m.AwayGoals, ms.ID AS SegmentID, mst.Name AS SegmentName, mst.MinuteOffset, s.IsHome, (s.Timestamp - ms.StartTime) / 1000 AS EventSeconds, ms.VideoSecondOffset, s.StatTypeID, st.Description AS StatTypeName, o.IsGoal, o.ID AS OutcomeID, o.Name AS OutcomeName FROM Matches m INNER JOIN MatchSegments ms ON ms.MatchID = m.ID INNER JOIN MatchStats s ON s.MatchSegmentID = ms.ID INNER JOIN MatchSegmentTypes mst ON mst.Code = ms.SegmentType INNER JOIN StatTypes st ON st.ID = s.StatTypeId INNER JOIN Outcomes o ON o.ID = s.OutcomeID WHERE m.ID = ? ORDER BY ms.StartTime, s.Timestamp", matchId);
 
@@ -334,8 +300,33 @@ export async function getMatchAndShallowSegments(matchId: string){
     };
 }
 
-export async function getStatsForSegment(matchSegmentId: number){
-    const {data} = await executeQuery("SELECT mst.Description, ms.IsHome, o.Name AS Outcome, sb.Name AS StatBucket, COUNT(o.Name) AS Total FROM StatTypes mst LEFT OUTER JOIN MatchStats ms ON ms.StatTypeID = mst.ID AND ms.MatchSegmentID = ? LEFT OUTER JOIN MatchSegments s ON ms.MatchSegmentID = s.ID LEFT OUTER JOIN Outcomes o ON o.ID = ms.OutcomeID LEFT OUTER JOIN StatBuckets sb ON sb.ID = o.StatBucketID GROUP BY mst.ID, mst.Description, ms.IsHome, o.Name, sb.Name ORDER BY mst.ID", matchSegmentId);
+export async function getStats({matchSegmentId, forTeam}: {matchSegmentId?: number, forTeam?: string}){
+    const params = [];
+    let query = "SELECT mst.Description, ";
+
+    if(forTeam){
+        query += "CASE WHEN (m.HomeTeam LIKE CONCAT('%', ?, '%') AND IsHome = 1) OR (m.AwayTeam LIKE CONCAT('%', ?, '%') AND IsHome = 0) THEN 1 ELSE 0 END AS IsHome, ";
+        params.push(forTeam, forTeam);
+    } else {
+        query += "ms.IsHome, ";
+    }
+
+    query += "o.Name AS Outcome, sb.Name AS StatBucket, COUNT(o.Name) AS Total FROM StatTypes mst LEFT OUTER JOIN MatchStats ms ON ms.StatTypeID = mst.ID ";
+
+    if(matchSegmentId){
+        query += "AND ms.MatchSegmentID = ? ";
+        params.push(matchSegmentId);
+    }
+
+    query += "LEFT OUTER JOIN MatchSegments s ON ms.MatchSegmentID = s.ID ";
+
+    if(forTeam){
+        query += "LEFT OUTER JOIN Matches m ON m.ID = s.MatchID ";
+    }
+
+    query += "LEFT OUTER JOIN Outcomes o ON o.ID = ms.OutcomeID LEFT OUTER JOIN StatBuckets sb ON sb.ID = o.StatBucketID GROUP BY mst.ID, mst.Description, ms.IsHome, o.Name, sb.Name ORDER BY mst.ID, sb.ID, o.SortOrder";
+
+    const {data} = await executeQuery(query, ...params);
 
     const result: {[key: string]: any} = {};
     for (const row of data) {

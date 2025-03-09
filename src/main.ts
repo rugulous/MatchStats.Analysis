@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getMatchAndShallowSegments, getStatsForSegment, getStatTypes, getTimeline, listMatches, loadAllStats, loadMatch, saveMatch } from './db';
+import { createManualMatch, getMatchAndShallowSegments, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -95,12 +95,13 @@ app.post("/paper-stats", async (req, res) => {
 });
 
 app.get("/", async (_, res) => {
-    const stats = await loadAllStats();
+    const [matches, stats] = await Promise.all([listMatches(), getStats({forTeam: "Totty"})]);
 
     res.render('list-matches.hbs', {
         title: "All Matches",
-        matches: await listMatches(),
-        allStats: {...stats, startTime: new Date(stats.startTime)}
+        matches: matches,
+        allStats: stats,
+        statStart: new Date(matches[matches.length - 1].StartTime)
     });
 });
 
@@ -130,7 +131,7 @@ app.get('/:id/stats', async (req, res) => {
     }
 
     const segments = await Promise.all(match.segments.map(async rawSeg => {
-        const stats = await getStatsForSegment(rawSeg.id);
+        const stats = await getStats({matchSegmentId: rawSeg.id});
         return {
             ...rawSeg,
             stats
