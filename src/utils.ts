@@ -106,3 +106,9 @@ export function tryParseInt(string: string, fallback: number){
 
     return val;
 }
+
+export function formatTimestamp(elapsedSeconds: number, minuteOffset: number = 0){
+    const minutes = minuteOffset + Math.floor(elapsedSeconds / 60);
+    const seconds = Math.floor(elapsedSeconds % 60);
+    return minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
+}

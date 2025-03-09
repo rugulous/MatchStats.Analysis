@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getStatTypes, listMatches, loadAllStats, loadMatch, saveMatch } from './db';
+import { createManualMatch, getStatTypes, getTimeline, listMatches, loadAllStats, loadMatch, saveMatch } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -109,18 +109,18 @@ app.get("/stat-sync", async (_, res) => {
 });
 
 app.get('/:id/timeline', async (req, res) => {
-    const data = await getData(req.params.id);
+    const data = await getTimeline(req.params.id);
     if(!data){
         res.status(404).send();
         return;
     }
 
-    if(!data.data.hasTimestamps){
-        res.redirect(`/${req.params.id}/stats`);
-        return;
-    }
-
-    res.render('timeline.hbs', data)
+    res.render('timeline.hbs', {
+        title: `${data.homeTeam} ${data.homeGoals}-${data.awayGoals} ${data.awayTeam}`,
+        hasTimestamps: data.hasTimestamps,
+        videoLink: data.videoLink,
+        segments: data.segments
+    })
 });
 app.get('/:id/stats', async (req, res) => {
     const data = await getData(req.params.id);

@@ -1,5 +1,6 @@
 import { createPool, QueryResult, RowDataPacket } from "mysql2/promise";
 import { Data, Event, Segment } from "./types";
+import { formatTimestamp } from "./utils";
 
 const pool = createPool({
     host: process.env.DB_HOST,
@@ -246,4 +247,68 @@ export async function loadAllStats(){
     });
 
     return segment;
+}
+
+export async function getTimeline(matchId: string){
+    const {data} = await executeQuery("SELECT m.HasTimestamps, m.VideoLink, m.HomeTeam, m.HomeGoals, m.AwayTeam, m.AwayGoals, ms.ID AS SegmentID, mst.Name AS SegmentName, mst.MinuteOffset, s.IsHome, (s.Timestamp - ms.StartTime) / 1000 AS EventSeconds, ms.VideoSecondOffset, s.StatTypeID, st.Description AS StatTypeName, o.IsGoal, o.ID AS OutcomeID, o.Name AS OutcomeName FROM Matches m INNER JOIN MatchSegments ms ON ms.MatchID = m.ID INNER JOIN MatchStats s ON s.MatchSegmentID = ms.ID INNER JOIN MatchSegmentTypes mst ON mst.Code = ms.SegmentType INNER JOIN StatTypes st ON st.ID = s.StatTypeId INNER JOIN Outcomes o ON o.ID = s.OutcomeID WHERE m.ID = ? ORDER BY ms.StartTime, s.Timestamp", matchId);
+
+    if(!data){
+        return null;
+    }
+
+    let lastSegmentId = null;
+    let index = -1;
+    const segments: {
+        name: string;
+        events: {
+            isHome: boolean;
+            timestamp: string;
+            videoTimestamp: string;
+            stat: {
+                id: number;
+                name: string;
+                isGoal: boolean;
+            },
+            outcome: {
+                id: number;
+                name: string;
+            }
+        }[]
+    }[] = [];
+
+    for(const row of data){
+        if(row.SegmentID != lastSegmentId){
+            segments.push({
+                name: row.SegmentName,
+                events: []
+            });
+            lastSegmentId = row.SegmentID;
+            index++;
+        }
+    
+        segments[index].events.push({
+            isHome: row.IsHome,
+            timestamp: formatTimestamp(row.EventSeconds, row.MinuteOffset),
+            videoTimestamp: formatTimestamp(row.EventSeconds + row.VideoSecondOffset),
+            stat: {
+                id: row.StatTypeID,
+                name: row.StatTypeName,
+                isGoal: !!row.IsGoal
+            },
+            outcome: {
+                id: row.OutcomeID,
+                name: row.OutcomeName
+            }
+        });
+    }
+
+    return {
+        homeTeam: data[0].HomeTeam,
+        awayTeam: data[0].AwayTeam,
+        homeGoals: data[0].HomeGoals,
+        awayGoals: data[0].AwayGoals,
+        videoLink: data[0].VideoLink,
+        hasTimestamps: data[0].HasTimestamps,
+        segments
+    };
 }

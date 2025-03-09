@@ -1,0 +1,9 @@
+<p>
+    {{#if videoLink}}
+    <a href="{{videoLink}}#t={{videoTime}}" target="_blank">
+    {{/if}}
+        <b>{{matchTime}}</b> - {{statType}} <i>({{outcome}}) {{#if isGoal}}<img src="/Football.svg" width="16" />{{/if}}</i>
+    {{#if videoLink}}
+    </a>
+    {{/if}}
+</p>
