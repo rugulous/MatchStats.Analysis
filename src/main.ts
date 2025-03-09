@@ -6,7 +6,7 @@ import { createManualMatch, getStatTypes, listMatches, loadAllStats, loadMatch, 
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
-import { categoriseEvents } from './utils';
+import { categoriseEvents, tryParseInt } from './utils';
 
 function buildOverallSegment(segments: Segment[]): Segment{
     const home = segments.flatMap(segment => segment.events.home);
@@ -148,6 +148,10 @@ app.get('/:id/graphs', async (req, res) => {
         return;
     }
 
+    const shotMomentum = tryParseInt(req.query.shots as string, 1);
+    const crossMomentum = tryParseInt(req.query.crosses as string, 1);
+    const cornerMomentum = tryParseInt(req.query.corners as string, 1);
+
     const stats: {
         goals: {home: number, away: number}[][]
         momentum: number[][],
@@ -166,9 +170,9 @@ app.get('/:id/graphs', async (req, res) => {
         maxMomentum: 0,
         maxStats: 0,
         momentumConfig: {
-            "Shot": 1,
-            "Cross": 1,
-            "Corner": 1
+            "Shot": shotMomentum,
+            "Cross": crossMomentum,
+            "Corner": cornerMomentum
         }
     };
 
@@ -204,7 +208,7 @@ app.get('/:id/graphs', async (req, res) => {
                 goals[section].away++;
             }
 
-            momentum[section] += stats.momentumConfig[e.statType];
+            momentum[section] -= stats.momentumConfig[e.statType];
             away[section][e.statType]++;
         });
 

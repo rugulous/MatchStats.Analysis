@@ -97,3 +97,12 @@ export function categoriseEvents(events: {home: Event[], away: Event[]}, viaApp:
 
     return categories;
 }
+
+export function tryParseInt(string: string, fallback: number){
+    const val = parseInt(string);
+    if(isNaN(val)){
+        return fallback;
+    }
+
+    return val;
+}
