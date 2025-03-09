@@ -1,10 +1,9 @@
-{{> header title=title page="Stats" videoLink=data.videoLink hasTimestamps=data.hasTimestamps hideNav=data.hideNav}}
+{{> header title=title page="Stats" videoLink=videoLink hasTimestamps=hasTimestamps hideNav=hideNav}}
 
 <div class="container">
     <p><a href="/">← Back to Match List</a></p>
-{{#each data.segments}}
+{{#each segments}}
 <h2 class="mt-3 text-center">{{name}}</h2>
-{{> statTable homeTeam=../data.homeTeam awayTeam=../data.awayTeam hasTimestamps=../data.hasTimestamps segment=this}}
-
+{{> statTable homeTeam=../homeTeam awayTeam=../awayTeam hasTimestamps=../hasTimestamps stats=stats}}
 {{/each}}
 </div>

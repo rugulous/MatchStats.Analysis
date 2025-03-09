@@ -9,30 +9,30 @@
     </div>
 </div>
 
-    {{#eachStatCategory segment hasTimestamps}}
+    {{#each stats}}
     <div class="row stat row-cols-3{{#unless isFirst}} mt-3{{/unless}}">
-    <div>
-        <b>{{stat}}</b>
+        <div>
+            <b>{{@key}}</b>
+        </div>
+        <div>
+            <b>{{total.home}}</b>
+        </div>
+        <div>
+            <b>{{total.away}}</b>
+        </div>
     </div>
-    <div>
-        <b>{{home}}</b>
-    </div>
-    <div>
-        <b>{{away}}</b>
-    </div>
-    </div>
-
+    
     {{#each substats}}
     <div class="row {{#if calculateTotalFrom}}sub{{/if}}substat row-cols-3">
-    <div>
-        {{@key}}
-    </div>
-    <div>
-        {{home}} ({{homePc}}%)
-    </div>
-    <div>
-        {{away}} ({{awayPc}}%)
-    </div>
+        <div>
+            {{@key}}
+        </div>
+        <div>
+            {{home}} ({{calculateStatPercent home ../total.home}}%)
+        </div>
+        <div>
+            {{away}} ({{calculateStatPercent away ../total.away}}%)
+        </div>
     </div>
     {{/each}}
-    {{/eachStatCategory}}
+    {{/each}}

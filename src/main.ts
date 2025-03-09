@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getStatTypes, getTimeline, listMatches, loadAllStats, loadMatch, saveMatch } from './db';
+import { createManualMatch, getMatchAndShallowSegments, getStatsForSegment, getStatTypes, getTimeline, listMatches, loadAllStats, loadMatch, saveMatch } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -123,16 +123,28 @@ app.get('/:id/timeline', async (req, res) => {
     })
 });
 app.get('/:id/stats', async (req, res) => {
-    const data = await getData(req.params.id);
-    if(!data){
+    const match = await getMatchAndShallowSegments(req.params.id);
+    if(!match){
         res.status(404).send();
         return;
     }
 
-    //add a dummy "Overall" segment
-    data.data.segments.unshift(buildOverallSegment(data.data.segments));
+    const segments = await Promise.all(match.segments.map(async rawSeg => {
+        const stats = await getStatsForSegment(rawSeg.id);
+        return {
+            ...rawSeg,
+            stats
+        }
+    }));
 
-    res.render('stats.hbs', data)
+    res.render('stats.hbs', {
+        title: `${match.homeTeam} ${match.homeGoals}-${match.awayGoals} ${match.awayTeam}`,
+        hasTimestamps: match.hasTimestamps,
+        videoLink: match.videoLink,
+        homeTeam: match.homeTeam,
+        awayTeam: match.awayTeam,
+        segments
+    })
 });
 app.get('/:id/graphs', async (req, res) => {
     const _data = await getData(req.params.id);

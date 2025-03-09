@@ -312,3 +312,55 @@ export async function getTimeline(matchId: string){
         segments
     };
 }
+
+export async function getMatchAndShallowSegments(matchId: string){
+    const {data} = await executeQuery("SELECT m.HomeTeam, m.AwayTeam, m.HomeGoals, m.AwayGoals, m.VideoLink, m.HasTimestamps, ms.ID AS SegmentID, st.Name AS SegmentName FROM Matches m INNER JOIN MatchSegments ms ON ms.MatchID = m.ID INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType WHERE m.ID = ?", matchId);
+
+    if(!data){
+        return null;
+    }
+
+    return {
+        homeTeam: data[0].HomeTeam,
+        awayTeam: data[0].AwayTeam,
+        homeGoals: data[0].HomeGoals,
+        awayGoals: data[0].AwayGoals,
+        videoLink: data[0].VideoLink,
+        hasTimestamps: !!data[0].HasTimestamps,
+        segments: data.map(row => ({
+            id: row.SegmentID,
+            name: row.SegmentName
+        }))
+    };
+}
+
+export async function getStatsForSegment(matchSegmentId: number){
+    const {data} = await executeQuery("SELECT mst.Description, ms.IsHome, o.Name AS Outcome, COUNT(o.Name) AS Total FROM MatchSegments s INNER JOIN MatchStats ms ON ms.MatchSegmentID = s.ID INNER JOIN StatTypes mst ON mst.ID = ms.StatTypeID INNER JOIN Outcomes o ON o.ID = ms.OutcomeID WHERE s.ID = ? GROUP BY mst.ID, mst.Description, ms.IsHome, o.Name ORDER BY mst.ID", matchSegmentId);
+
+    const result: {[key: string]: any} = {};
+    for(const row of data){
+        if(!result[row.Description]){
+            result[row.Description] = {
+                total: {
+                    home: 0,
+                    away: 0
+                },
+                substats: {}
+            }
+        }
+
+        if(!result[row.Description].substats[row.Outcome]){
+            result[row.Description].substats[row.Outcome] = {home: 0, away: 0};
+        }
+
+        if(row.IsHome){
+            result[row.Description].total.home += row.Total;
+            result[row.Description].substats[row.Outcome].home = row.Total
+        } else {
+            result[row.Description].total.away += row.Total;
+            result[row.Description].substats[row.Outcome].away = row.Total
+        }
+    }
+
+    return result;
+}
