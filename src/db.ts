@@ -335,31 +335,26 @@ export async function getMatchAndShallowSegments(matchId: string){
 }
 
 export async function getStatsForSegment(matchSegmentId: number){
-    const {data} = await executeQuery("SELECT mst.Description, ms.IsHome, o.Name AS Outcome, COUNT(o.Name) AS Total FROM MatchSegments s INNER JOIN MatchStats ms ON ms.MatchSegmentID = s.ID INNER JOIN StatTypes mst ON mst.ID = ms.StatTypeID INNER JOIN Outcomes o ON o.ID = ms.OutcomeID WHERE s.ID = ? GROUP BY mst.ID, mst.Description, ms.IsHome, o.Name ORDER BY mst.ID", matchSegmentId);
+    const {data} = await executeQuery("SELECT mst.Description, ms.IsHome, o.Name AS Outcome, sb.Name AS StatBucket, COUNT(o.Name) AS Total FROM StatTypes mst LEFT OUTER JOIN MatchStats ms ON ms.StatTypeID = mst.ID AND ms.MatchSegmentID = ? LEFT OUTER JOIN MatchSegments s ON ms.MatchSegmentID = s.ID LEFT OUTER JOIN Outcomes o ON o.ID = ms.OutcomeID LEFT OUTER JOIN StatBuckets sb ON sb.ID = o.StatBucketID GROUP BY mst.ID, mst.Description, ms.IsHome, o.Name, sb.Name ORDER BY mst.ID", matchSegmentId);
 
     const result: {[key: string]: any} = {};
-    for(const row of data){
-        if(!result[row.Description]){
-            result[row.Description] = {
-                total: {
-                    home: 0,
-                    away: 0
-                },
-                substats: {}
+    for (const row of data) {
+        const { Description, IsHome, Outcome, StatBucket, Total } = row;
+
+        const stat = (result[Description] ??= { total: { home: 0, away: 0 }, buckets: {} });
+
+        if (StatBucket) {
+            const bucket = (stat.buckets[StatBucket] ??= { home: 0, away: 0, substats: {} });
+
+            if (Outcome && Outcome != StatBucket) {
+                bucket.substats[Outcome] ??= { home: 0, away: 0 };
+                bucket.substats[Outcome][IsHome ? "home" : "away"] = Total;
             }
+
+            bucket[IsHome ? "home" : "away"] += Total;
         }
 
-        if(!result[row.Description].substats[row.Outcome]){
-            result[row.Description].substats[row.Outcome] = {home: 0, away: 0};
-        }
-
-        if(row.IsHome){
-            result[row.Description].total.home += row.Total;
-            result[row.Description].substats[row.Outcome].home = row.Total
-        } else {
-            result[row.Description].total.away += row.Total;
-            result[row.Description].substats[row.Outcome].away = row.Total
-        }
+        stat.total[IsHome ? "home" : "away"] += Total;
     }
 
     return result;

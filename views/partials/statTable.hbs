@@ -22,8 +22,8 @@
         </div>
     </div>
     
-    {{#each substats}}
-    <div class="row {{#if calculateTotalFrom}}sub{{/if}}substat row-cols-3">
+    {{#each buckets}}
+    <div class="row substat row-cols-3">
         <div>
             {{@key}}
         </div>
@@ -34,5 +34,20 @@
             {{away}} ({{calculateStatPercent away ../total.away}}%)
         </div>
     </div>
+
+    {{#each substats}}
+        <div class="row subsubstat row-cols-3">
+        <div>
+            {{@key}}
+        </div>
+        <div>
+            {{home}} ({{calculateStatPercent home ../home}}%)
+        </div>
+        <div>
+            {{away}} ({{calculateStatPercent away ../away}}%)
+        </div>
+    </div>
+    {{/each}}
+
     {{/each}}
     {{/each}}
