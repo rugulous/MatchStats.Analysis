@@ -155,7 +155,8 @@ app.get('/:id/graphs', async (req, res) => {
         away: Record<StatType, number>[][],
         segments: {name: string, code: string}[],
         maxMomentum: number,
-        maxStats: number
+        maxStats: number,
+        momentumConfig: Record<StatType, number>
     } = {
         goals: [],
         momentum: [],
@@ -163,7 +164,12 @@ app.get('/:id/graphs', async (req, res) => {
         away: [],
         segments: [],
         maxMomentum: 0,
-        maxStats: 0
+        maxStats: 0,
+        momentumConfig: {
+            "Shot": 1,
+            "Cross": 1,
+            "Corner": 1
+        }
     };
 
     data.segments.forEach(segment => {
@@ -184,14 +190,7 @@ app.get('/:id/graphs', async (req, res) => {
                 goals[section].home++;
             }
             
-            if(e.statType == "Cross"){
-                momentum[section]++;
-            } else if(e.statType == "Shot"){
-                momentum[section] += 2;
-            } else {
-                //corners don't add to the score
-            }
-
+            momentum[section] += stats.momentumConfig[e.statType];
             home[section][e.statType]++;
         });
 
@@ -205,14 +204,7 @@ app.get('/:id/graphs', async (req, res) => {
                 goals[section].away++;
             }
 
-            if(e.statType == "Cross"){
-                momentum[section]--;
-            } else if(e.statType == "Shot"){
-                momentum[section] -= 2;
-            } else {
-                //corners don't add to the score
-            }
-
+            momentum[section] += stats.momentumConfig[e.statType];
             away[section][e.statType]++;
         });
 

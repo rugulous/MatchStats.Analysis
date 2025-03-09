@@ -204,7 +204,7 @@
         <div class="col-lg-8 mb-3">
             <h3>Momentum</h3>
             <canvas id="{{code}}_momentum"></canvas>
-            <small>Momentum is calculated by giving each stat type a point score (Corner = 0, Cross = 1, Shot = 2) and summing them all together, then comparing both teams' totals</small>
+            <small>Momentum is calculated by giving each stat type a point score ({{printMomentumConfig  ../momentumConfig}}) and summing them all together, then comparing both teams' totals</small>
             <script>
                 (function(){
                     const data = [{{#each (lookup ../momentum @index)}}{{this}},{{/each}}];

@@ -1,5 +1,6 @@
-import type { Segment } from "./types";
+import type { Segment, StatType } from "./types";
 import { categoriseEvents } from "./utils";
+import {SafeString} from "handlebars";
 
 export default {
         json: (obj: any) => JSON.stringify(obj),
@@ -56,5 +57,6 @@ export default {
         lower: (str: string) => str.toLowerCase(),
         multiply: (a: number, b: number) => a * b,
         add: (a: number, b: number) => a + b,
-        fmtDate: (date: Date) => date.toLocaleString('en-GB')
+        fmtDate: (date: Date) => date.toLocaleString('en-GB'),
+        printMomentumConfig: (momentumConfig: Record<StatType, number>) => new SafeString((Object.keys(momentumConfig) as StatType[]).map(k => `${k} = <b>${momentumConfig[k]}</b>`).join(", "))
     }
