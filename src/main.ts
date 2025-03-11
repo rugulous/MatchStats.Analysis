@@ -130,13 +130,51 @@ app.get('/:id/stats', async (req, res) => {
         return;
     }
 
+    const overallSegment = {
+        id: null,
+        name: 'Overall',
+        stats: {} as {[key: string]: any}    
+    };
+
     const segments = await Promise.all(match.segments.map(async rawSeg => {
         const stats = await getStats({matchSegmentId: rawSeg.id});
+        
         return {
             ...rawSeg,
             stats
         }
     }));
+
+    for (const { stats } of segments) {
+        for (const statKey in stats) {
+            const statValue = stats[statKey];
+
+            const overallStat = overallSegment.stats[statKey] ??= { total: { home: 0, away: 0 }, buckets: {} };
+    
+            overallStat.total.home += statValue.total?.home ?? 0;
+            overallStat.total.away += statValue.total?.away ?? 0;
+    
+            for (const bucketKey in statValue.buckets) {
+                const bucketValue = statValue.buckets[bucketKey];
+    
+                const bucket = overallStat.buckets[bucketKey] ??= { home: 0, away: 0, substats: {} };
+    
+                bucket.home += bucketValue.home ?? 0;
+                bucket.away += bucketValue.away ?? 0;
+    
+                for (const substatKey in bucketValue.substats) {
+                    const substatValue = bucketValue.substats[substatKey];
+    
+                    const substat = bucket.substats[substatKey] ??= { home: 0, away: 0 };
+    
+                    substat.home += substatValue.home ?? 0;
+                    substat.away += substatValue.away ?? 0;
+                }
+            }
+        }
+    }
+
+    segments.unshift(overallSegment);
 
     res.render('stats.hbs', {
         title: `${match.homeTeam} ${match.homeGoals}-${match.awayGoals} ${match.awayTeam}`,
