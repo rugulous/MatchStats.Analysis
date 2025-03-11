@@ -282,7 +282,7 @@ export async function getTimeline(matchId: string){
 export async function getMatchAndShallowSegments(matchId: string){
     const {data} = await executeQuery("SELECT m.HomeTeam, m.AwayTeam, m.HomeGoals, m.AwayGoals, m.VideoLink, m.HasTimestamps, ms.ID AS SegmentID, st.Name AS SegmentName FROM Matches m INNER JOIN MatchSegments ms ON ms.MatchID = m.ID INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType WHERE m.ID = ?", matchId);
 
-    if(!data){
+    if(data.length === 0){
         return null;
     }
 
