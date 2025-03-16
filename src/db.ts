@@ -309,6 +309,7 @@ export async function getMatchAndShallowSegments(matchId: string){
 export async function getStats({matchSegmentId, forTeam}: {matchSegmentId?: number, forTeam?: string}){
     const {query, params} = buildStatsQuery(matchSegmentId, forTeam);
     const {data} = await executeQuery(query, ...params);
+    console.log(data);
 
     const result: {[key: string]: any} = {};
     
@@ -359,7 +360,19 @@ function buildStatsQuery(matchSegmentId?: number, forTeam?: string){
         query += "LEFT OUTER JOIN Matches m ON m.ID = s.MatchID ";
     }
 
-    query += "LEFT OUTER JOIN Outcomes o ON o.ID = ms.OutcomeID LEFT OUTER JOIN StatBuckets sb ON sb.ID = o.StatBucketID GROUP BY mst.ID, mst.Description, ms.IsHome, o.Name, sb.Name, sb.IsCollapsed ORDER BY mst.ID, sb.ID, o.SortOrder";
+    query += "LEFT OUTER JOIN Outcomes o ON o.ID = ms.OutcomeID LEFT OUTER JOIN StatBuckets sb ON sb.ID = o.StatBucketID GROUP BY mst.ID, mst.Description, "
+
+    if(forTeam){
+        query += "CASE WHEN (m.HomeTeam LIKE CONCAT('%', ?, '%') AND IsHome = 1) OR (m.AwayTeam LIKE CONCAT('%', ?, '%') AND IsHome = 0) THEN 1 ELSE 0 END";
+        params.push(forTeam, forTeam);
+    } else {
+        query += "ms.IsHome";
+    }
+
+    query += ", o.Name, sb.Name, sb.IsCollapsed ORDER BY mst.ID, sb.ID, o.SortOrder";
+
+    console.log(query)
+    console.log(params)
 
     return {query, params};
 }
