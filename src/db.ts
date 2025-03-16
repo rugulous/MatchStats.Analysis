@@ -312,7 +312,7 @@ export async function getStats({matchSegmentId, forTeam}: {matchSegmentId?: numb
     const result: {[key: string]: any} = {};
     
     for (const row of data) {
-        const { Description, IsHome, Outcome, StatBucket, Total } = row;
+        const { Description, IsHome, Outcome, StatBucket, Total, IsCollapsed } = row;
         const teamKey = IsHome ? "home" : "away";
 
         const stat = (result[Description] ??= { total: { home: 0, away: 0 }, buckets: {} });
@@ -320,7 +320,7 @@ export async function getStats({matchSegmentId, forTeam}: {matchSegmentId?: numb
         if (StatBucket) {
             const bucket = (stat.buckets[StatBucket] ??= { home: 0, away: 0, substats: {} });
 
-            if (Outcome && Outcome != StatBucket) {
+            if (Outcome && !IsCollapsed) {
                 bucket.substats[Outcome] ??= { home: 0, away: 0 };
                 bucket.substats[Outcome][teamKey] = Total;
             }
@@ -345,7 +345,7 @@ function buildStatsQuery(matchSegmentId?: number, forTeam?: string){
         query += "ms.IsHome, ";
     }
 
-    query += "o.Name AS Outcome, sb.Name AS StatBucket, COUNT(o.Name) AS Total FROM StatTypes mst LEFT OUTER JOIN MatchStats ms ON ms.StatTypeID = mst.ID ";
+    query += "o.Name AS Outcome, sb.Name AS StatBucket, sb.IsCollapsed, COUNT(o.Name) AS Total FROM StatTypes mst LEFT OUTER JOIN MatchStats ms ON ms.StatTypeID = mst.ID ";
 
     if(matchSegmentId){
         query += "AND ms.MatchSegmentID = ? ";
@@ -358,7 +358,7 @@ function buildStatsQuery(matchSegmentId?: number, forTeam?: string){
         query += "LEFT OUTER JOIN Matches m ON m.ID = s.MatchID ";
     }
 
-    query += "LEFT OUTER JOIN Outcomes o ON o.ID = ms.OutcomeID LEFT OUTER JOIN StatBuckets sb ON sb.ID = o.StatBucketID GROUP BY mst.ID, mst.Description, ms.IsHome, o.Name, sb.Name ORDER BY mst.ID, sb.ID, o.SortOrder";
+    query += "LEFT OUTER JOIN Outcomes o ON o.ID = ms.OutcomeID LEFT OUTER JOIN StatBuckets sb ON sb.ID = o.StatBucketID GROUP BY mst.ID, mst.Description, ms.IsHome, o.Name, sb.Name, sb.IsCollapsed ORDER BY mst.ID, sb.ID, o.SortOrder";
 
     return {query, params};
 }
