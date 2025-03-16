@@ -243,6 +243,7 @@ export async function getTimeline(matchId: string){
     }[] = [];
 
     for(const row of data){
+        row.EventSeconds = parseInt(row.EventSeconds);
         if(row.SegmentID != lastSegmentId){
             segments.push({
                 name: row.SegmentName,
@@ -255,7 +256,7 @@ export async function getTimeline(matchId: string){
         segments[index].events.push({
             isHome: row.IsHome,
             timestamp: formatTimestamp(row.EventSeconds, row.MinuteOffset),
-            videoTimestamp: formatTimestamp(row.EventSeconds + row.VideoSecondOffset),
+            videoTimestamp: formatTimestamp(row.EventSeconds + row.VideoSecondOffset, row.MinuteOffset),
             stat: {
                 id: row.StatTypeID,
                 name: row.StatTypeName,
