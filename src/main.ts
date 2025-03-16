@@ -135,6 +135,7 @@ app.get('/:id/stats', async (req, res) => {
         name: 'Overall',
         startTime: 0,
         videoOffset: 0,
+        minuteOffset: 0,
         stats: {} as {[key: string]: any}    
     };
 
@@ -306,7 +307,34 @@ app.get('/:id/graphs', async (req, res) => {
 
     res.render('graphs.hbs', {title, videoLink: data.videoLink, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, colours: {home: homeColours, away: awayColours}, ...stats});
 });
-app.get('/:id/',  (req, res) => res.redirect(`/${req.params.id}/stats`));
+
+app.get("/:id/video", async (req, res) => {
+    const match = await getMatchAndShallowSegments(req.params.id);
+    if(!match){
+        res.sendStatus(404);
+        return;
+    }
+
+    res.render('video-config.hbs', {
+        title: `${match.homeTeam} ${match.homeGoals}-${match.awayGoals} ${match.awayTeam}`,
+        videoLink: match.videoLink,
+        hasTimestamps: match.hasTimestamps,
+        segments: match.segments.map(seg => {
+            const time = (seg.minuteOffset * 60) + seg.videoOffset;
+            const minutes = Math.floor(time / 60);
+            const seconds = time % 60;
+
+            return {
+                id: seg.id,
+                name: seg.name,
+                minutes,
+                seconds
+            }
+        })
+    })
+});
+
+app.get('/:id/', (req, res) => res.redirect(`/${req.params.id}/stats`));
 
 app.post("/record-match", async (req, res) => {
     const id = await saveMatch(req.body);

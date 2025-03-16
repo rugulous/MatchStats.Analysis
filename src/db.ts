@@ -283,7 +283,7 @@ export async function getTimeline(matchId: string){
 }
 
 export async function getMatchAndShallowSegments(matchId: string){
-    const {data} = await executeQuery("SELECT m.HomeTeam, m.AwayTeam, m.HomeGoals, m.AwayGoals, m.VideoLink, m.HasTimestamps, ms.ID AS SegmentID, st.Name AS SegmentName, ms.StartTime, ms.VideoSecondOffset FROM Matches m INNER JOIN MatchSegments ms ON ms.MatchID = m.ID INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType WHERE m.ID = ?", matchId);
+    const {data} = await executeQuery("SELECT m.HomeTeam, m.AwayTeam, m.HomeGoals, m.AwayGoals, m.VideoLink, m.HasTimestamps, ms.ID AS SegmentID, st.Name AS SegmentName, ms.StartTime, ms.VideoSecondOffset, st.MinuteOffset FROM Matches m INNER JOIN MatchSegments ms ON ms.MatchID = m.ID INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType WHERE m.ID = ?", matchId);
 
     if(data.length === 0){
         return null;
@@ -300,7 +300,8 @@ export async function getMatchAndShallowSegments(matchId: string){
             id: row.SegmentID,
             name: row.SegmentName,
             startTime: row.StartTime,
-            videoOffset: row.VideoSecondOffset
+            videoOffset: row.VideoSecondOffset,
+            minuteOffset: row.MinuteOffset
         }))
     };
 }
