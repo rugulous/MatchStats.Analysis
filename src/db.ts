@@ -302,6 +302,35 @@ export async function getMatchAndShallowSegments(matchId: string){
 }
 
 export async function getStats({matchSegmentId, forTeam}: {matchSegmentId?: number, forTeam?: string}){
+    const {query, params} = buildStatsQuery(matchSegmentId, forTeam);
+    const {data} = await executeQuery(query, ...params);
+
+    const result: {[key: string]: any} = {};
+    
+    for (const row of data) {
+        const { Description, IsHome, Outcome, StatBucket, Total } = row;
+        const teamKey = IsHome ? "home" : "away";
+
+        const stat = (result[Description] ??= { total: { home: 0, away: 0 }, buckets: {} });
+
+        if (StatBucket) {
+            const bucket = (stat.buckets[StatBucket] ??= { home: 0, away: 0, substats: {} });
+
+            if (Outcome && Outcome != StatBucket) {
+                bucket.substats[Outcome] ??= { home: 0, away: 0 };
+                bucket.substats[Outcome][teamKey] = Total;
+            }
+
+            bucket[teamKey] += Total;
+        }
+
+        stat.total[teamKey] += Total;
+    }
+
+    return result;
+}
+
+function buildStatsQuery(matchSegmentId?: number, forTeam?: string){
     const params = [];
     let query = "SELECT mst.Description, ";
 
@@ -327,27 +356,5 @@ export async function getStats({matchSegmentId, forTeam}: {matchSegmentId?: numb
 
     query += "LEFT OUTER JOIN Outcomes o ON o.ID = ms.OutcomeID LEFT OUTER JOIN StatBuckets sb ON sb.ID = o.StatBucketID GROUP BY mst.ID, mst.Description, ms.IsHome, o.Name, sb.Name ORDER BY mst.ID, sb.ID, o.SortOrder";
 
-    const {data} = await executeQuery(query, ...params);
-
-    const result: {[key: string]: any} = {};
-    for (const row of data) {
-        const { Description, IsHome, Outcome, StatBucket, Total } = row;
-
-        const stat = (result[Description] ??= { total: { home: 0, away: 0 }, buckets: {} });
-
-        if (StatBucket) {
-            const bucket = (stat.buckets[StatBucket] ??= { home: 0, away: 0, substats: {} });
-
-            if (Outcome && Outcome != StatBucket) {
-                bucket.substats[Outcome] ??= { home: 0, away: 0 };
-                bucket.substats[Outcome][IsHome ? "home" : "away"] = Total;
-            }
-
-            bucket[IsHome ? "home" : "away"] += Total;
-        }
-
-        stat.total[IsHome ? "home" : "away"] += Total;
-    }
-
-    return result;
+    return {query, params};
 }
