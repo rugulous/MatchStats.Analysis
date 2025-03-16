@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getMatchAndShallowSegments, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch } from './db';
+import { createManualMatch, getMatchAndShallowSegments, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -320,9 +320,14 @@ app.get("/:id/video", async (req, res) => {
         videoLink: match.videoLink,
         hasTimestamps: match.hasTimestamps,
         segments: match.segments.map(seg => {
-            const time = (seg.minuteOffset * 60) + seg.videoOffset;
-            const minutes = Math.floor(time / 60);
-            const seconds = time % 60;
+            let minutes = null;
+            let seconds = null;
+
+            if (seg.videoOffset) {
+                const time = (seg.minuteOffset * 60) + seg.videoOffset;
+                minutes = Math.floor(time / 60);
+                seconds = time % 60;
+            }
 
             return {
                 id: seg.id,
@@ -332,6 +337,33 @@ app.get("/:id/video", async (req, res) => {
             }
         })
     })
+});
+
+app.post("/:id/video", async (req, res) => {
+    const match = await getMatchAndShallowSegments(req.params.id);
+    if(!match){
+        res.sendStatus(404);
+        return;
+    }
+
+    await Promise.all(req.body.segment.map(async (_segmentId: string, index: number) => {
+        const segmentId = parseInt(_segmentId);
+        const segment = match.segments.find(x => x.id === segmentId);
+
+        if(!segment){
+            return;
+        }
+
+        const actualSeconds = (parseInt(req.body.minute[index]) * 60) + parseInt(req.body.second[index]);
+        const targetSeconds =segment.minuteOffset * 60;
+        const offset = actualSeconds - targetSeconds;
+
+        await setVideoOffset(segmentId, offset);
+    }));
+
+    await setVideoLink(req.params.id, req.body.video);
+
+    res.redirect(`/${req.params.id}/timeline`);
 });
 
 app.get('/:id/', (req, res) => res.redirect(`/${req.params.id}/stats`));

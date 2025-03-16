@@ -363,3 +363,11 @@ function buildStatsQuery(matchSegmentId?: number, forTeam?: string){
 
     return {query, params};
 }
+
+export async function setVideoOffset(segmentId: number, offset: number){
+    await executeQuery("UPDATE MatchSegments SET VideoSecondOffset = ? WHERE ID = ?", offset, segmentId);
+}
+
+export async function setVideoLink(matchId: string, link: string){
+    await executeQuery("UPDATE Matches SET VideoLink = ? WHERE ID = ?", link, matchId);
+}
