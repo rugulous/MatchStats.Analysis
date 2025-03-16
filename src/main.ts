@@ -133,6 +133,8 @@ app.get('/:id/stats', async (req, res) => {
     const overallSegment = {
         id: null,
         name: 'Overall',
+        startTime: 0,
+        videoOffset: 0,
         stats: {} as {[key: string]: any}    
     };
 

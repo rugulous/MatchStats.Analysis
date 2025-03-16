@@ -226,6 +226,7 @@ export async function getTimeline(matchId: string){
     let index = -1;
     const segments: {
         name: string;
+        videoStartTime: string;
         events: {
             isHome: boolean;
             timestamp: string;
@@ -247,6 +248,7 @@ export async function getTimeline(matchId: string){
         if(row.SegmentID != lastSegmentId){
             segments.push({
                 name: row.SegmentName,
+                videoStartTime: formatTimestamp(row.VideoSecondOffset, row.MinuteOffset),
                 events: []
             });
             lastSegmentId = row.SegmentID;
@@ -281,7 +283,7 @@ export async function getTimeline(matchId: string){
 }
 
 export async function getMatchAndShallowSegments(matchId: string){
-    const {data} = await executeQuery("SELECT m.HomeTeam, m.AwayTeam, m.HomeGoals, m.AwayGoals, m.VideoLink, m.HasTimestamps, ms.ID AS SegmentID, st.Name AS SegmentName FROM Matches m INNER JOIN MatchSegments ms ON ms.MatchID = m.ID INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType WHERE m.ID = ?", matchId);
+    const {data} = await executeQuery("SELECT m.HomeTeam, m.AwayTeam, m.HomeGoals, m.AwayGoals, m.VideoLink, m.HasTimestamps, ms.ID AS SegmentID, st.Name AS SegmentName, ms.StartTime, ms.VideoSecondOffset FROM Matches m INNER JOIN MatchSegments ms ON ms.MatchID = m.ID INNER JOIN MatchSegmentTypes st ON st.Code = ms.SegmentType WHERE m.ID = ?", matchId);
 
     if(data.length === 0){
         return null;
@@ -296,7 +298,9 @@ export async function getMatchAndShallowSegments(matchId: string){
         hasTimestamps: !!data[0].HasTimestamps,
         segments: data.map(row => ({
             id: row.SegmentID,
-            name: row.SegmentName
+            name: row.SegmentName,
+            startTime: row.StartTime,
+            videoOffset: row.VideoSecondOffset
         }))
     };
 }

@@ -3,7 +3,15 @@
 <div class="container">
     <p><a href="/">← Back to Match List</a></p>
     {{#each segments}}
-        <h3 class="timeline-header">{{name}}</h3>
+        <h3 class="timeline-header">
+            {{#if ../videoLink}}
+            <a href="{{../videoLink}}#t={{videoStartTime}}" target="_blank">
+            {{/if}}
+            {{name}}
+            {{#if ../videoLink}}
+            </a>
+            {{/if}}
+        </h3>
 
         <div class="row timeline">
             {{#each events}}
