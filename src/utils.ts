@@ -108,6 +108,7 @@ export function tryParseInt(string: string, fallback: number){
 }
 
 export function formatTimestamp(elapsedSeconds: number, minuteOffset: number = 0){
+    elapsedSeconds = Math.max(0, elapsedSeconds - 5); //5 second buffer to show runup/allow for recording time
     const minutes = minuteOffset + Math.floor(elapsedSeconds / 60);
     const seconds = Math.floor(elapsedSeconds % 60);
     return minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
