@@ -258,7 +258,7 @@ export async function getTimeline(matchId: string){
         segments[index].events.push({
             isHome: row.IsHome,
             timestamp: formatTimestamp(row.EventSeconds, row.MinuteOffset),
-            videoTimestamp: formatTimestamp(row.EventSeconds + row.VideoSecondOffset, row.MinuteOffset),
+            videoTimestamp: formatTimestamp(row.EventSeconds + row.VideoSecondOffset - 5, row.MinuteOffset),
             stat: {
                 id: row.StatTypeID,
                 name: row.StatTypeName,
