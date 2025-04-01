@@ -3,8 +3,10 @@
 <div class="container">
     <h2>All Matches</h2>
 
-    <div class="row row-cols-1 row-cols-lg-3">
         {{#each matches}}
+        <h3 class="mt-3"><a href="/stats?month={{month}}&year={{year}}">{{@key}}</a></h3>
+            <div class="row row-cols-1 row-cols-lg-3">
+                {{#each matches}}
         <div class="col">
             <div class="card mb-3">
                 <div class="card-body text-center">
@@ -38,9 +40,10 @@
             </div>
         </div>
         {{/each}}
-    </div>
+            </div>
+        {{/each}}
 
     <h2 class="mt-3">All Stats</h2>
-    <a href="/stats?year={{latestMonth.Year}}&month={{latestMonth.Month}}">View monthly breakdown</a> | <i><small>Starting from {{fmtDate statStart}}</small></i>
+    <i><small>Starting from {{fmtDate statStart}}</small></i>
     {{> statTable title="" homeTeam="Totty" awayTeam="Opposition" stats=allStats}}
 </div>

@@ -6,7 +6,7 @@ import { createManualMatch, getActiveMonths, getMatchAndShallowSegments, getStat
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
-import { categoriseEvents, tryParseInt } from './utils';
+import { categoriseEvents, groupMatchesByMonth, tryParseInt } from './utils';
 
 function buildOverallSegment(segments: Segment[]): Segment{
     const home = segments.flatMap(segment => segment.events.home);
@@ -95,14 +95,13 @@ app.post("/paper-stats", async (req, res) => {
 });
 
 app.get("/", async (_, res) => {
-    const [matches, stats, [latestMonth]] = await Promise.all([listMatches(), getStats({forTeam: "Totty"}), getActiveMonths()]);
+    const [matches, stats] = await Promise.all([listMatches(), getStats({forTeam: "Totty"})]);
 
     res.render('list-matches.hbs', {
         title: "All Matches",
-        matches: matches,
+        matches: groupMatchesByMonth(matches),
         allStats: stats,
         statStart: new Date(matches[matches.length - 1].StartTime),
-        latestMonth
     });
 });
 

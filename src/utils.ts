@@ -113,3 +113,20 @@ export function formatTimestamp(elapsedSeconds: number, minuteOffset: number = 0
     const seconds = Math.floor(elapsedSeconds % 60);
     return minutes.toString().padStart(2, '0') + ":" + seconds.toString().padStart(2, '0');
 }
+
+export function groupMatchesByMonth(matches: any){
+    return matches.reduce((acc: {[key: string]: any}, match: any) => {
+        const monthKey = match.StartTime.toLocaleString('en-GB', { year: 'numeric', month: 'long' });
+
+        if (!acc[monthKey]) {
+            acc[monthKey] = {
+                month: match.StartTime.getMonth(),
+                year: match.StartTime.getFullYear(),
+                matches: []
+            }
+        }
+
+        acc[monthKey].matches.push(match);
+        return acc;
+    }, {});
+}
