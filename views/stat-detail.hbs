@@ -32,7 +32,9 @@
         <details>
         <summary><h3><i>{{HomeTeam}} vs {{AwayTeam}} ({{HomeGoals}} - {{AwayGoals}})</i></h3></summary>
         {{#each segments}}
-        {{> statTable homeTeam=../HomeTeam awayTeam=../AwayTeam stats=this}}
+        <div class="mb-3">
+            {{> statTable title=Name homeTeam=../HomeTeam awayTeam=../AwayTeam stats=stats}}
+        </div>
         {{/each}}
         </details>
     {{/each}}

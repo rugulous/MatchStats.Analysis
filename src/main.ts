@@ -128,12 +128,13 @@ app.get("/stats", async (req, res) => {
 
     res.render('stat-detail.hbs', {
         title: targetMonth.toLocaleDateString("en-GB", {year: 'numeric', month: 'long'}) + " Stats",
-        matches: await Promise.all(matches.map(async match => {
-            return {
+        matches: await Promise.all(matches.map(async match => ({
                 ...match,
-                segments: await Promise.all(match.Segments.map(async s => await getStats({matchSegmentId: s})))
-            }
-        })),
+                segments: await Promise.all(match.Segments.map(async s => ({
+                    ...s, 
+                    stats: await getStats({matchSegmentId: s.ID})
+                })))
+        }))),
         allStats: stats,
         noMatches: matches.length == 0,
         month: targetMonth,

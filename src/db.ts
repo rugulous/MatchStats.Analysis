@@ -143,7 +143,7 @@ export async function getStatTypes(){
 }
 
 export async function listMatches(forMonth?: Date){
-    let query = "SELECT m.*, ms.StartTime, ms.ID AS MatchSegmentID FROM Matches m LEFT OUTER JOIN MatchSegments ms ON ms.MatchID = m.ID ";
+    let query = "SELECT m.*, ms.StartTime, ms.ID AS MatchSegmentID, mst.Name AS MatchSegmentName FROM Matches m LEFT OUTER JOIN MatchSegments ms ON ms.MatchID = m.ID LEFT OUTER JOIN MatchSegmentTypes mst ON mst.Code = ms.SegmentType ";
     const params = [];
 
     if(forMonth){
@@ -161,15 +161,21 @@ export async function listMatches(forMonth?: Date){
             acc[row.ID] = {...row, StartTime: segmentStart, HasTimestamps: !!row.HasTimestamps, Segments: []}
         }
 
-        acc[row.ID].Segments.push(row.MatchSegmentID);
+        acc[row.ID].Segments.push({
+            ID: row.MatchSegmentID,
+            Name: row.MatchSegmentName
+        });
         if(segmentStart < acc[row.ID].StartTime){
             acc[row.ID].StartTime = segmentStart;
         }
 
         return acc;
-    }, {} as {[key: string]: {StartTime: Date, HasTimestamps: boolean, Segments: number[]}});
+    }, {} as {[key: string]: {StartTime: Date, HasTimestamps: boolean, Segments: {ID: number, Name: string}[]}});
 
-    return Object.values(matches);
+    const normalisedMatches = Object.values(matches);
+    normalisedMatches.forEach(match => match.Segments.reverse());
+
+    return normalisedMatches;
 }
 
 type SegmentEvents = {
