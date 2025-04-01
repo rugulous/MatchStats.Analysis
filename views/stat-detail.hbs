@@ -21,10 +21,10 @@
     </div>
 
     {{#if noMatches}}
-        <div class="alert alert-danger text-center">No matches found</div>
+        <div class="alert alert-danger text-center">No matches found. Please select a month from the dropdown above</div>
     {{else}}
 
-    {{> statTable homeTeam="Totty" awayTeam="Opposition" stats=allStats}}
+    {{> statTable title="" homeTeam="Totty" awayTeam="Opposition" stats=allStats}}
 
     <hr class="my-3" />
 
