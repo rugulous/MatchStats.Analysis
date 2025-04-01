@@ -58,6 +58,7 @@ export default {
         multiply: (a: number, b: number) => a * b,
         add: (a: number, b: number) => a + b,
         fmtDate: (date: Date) => date.toLocaleString('en-GB'),
+        dateOnly: (date: Date) => date.toLocaleDateString('en-GB'),
         printMomentumConfig: (momentumConfig: Record<StatType, number>) => new SafeString((Object.keys(momentumConfig) as StatType[]).map(k => `${k} = <b>${momentumConfig[k]}</b>`).join(", ")),
         calculateStatPercent: (total: number, outOf: number) => {
             const result = Math.round((total / outOf) * 100);

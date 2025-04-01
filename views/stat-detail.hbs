@@ -29,8 +29,9 @@
     <hr class="my-3" />
 
     {{#each matches}}
+    {{json this}}
         <details>
-        <summary><h3><i>{{HomeTeam}} vs {{AwayTeam}} ({{HomeGoals}} - {{AwayGoals}})</i></h3></summary>
+        <summary><h3><i>{{dateOnly StartTime}} - {{HomeTeam}} vs {{AwayTeam}} ({{HomeGoals}} - {{AwayGoals}})</i></h3></summary>
         {{#each segments}}
         <div class="mb-3">
             {{> statTable title=Name homeTeam=../HomeTeam awayTeam=../AwayTeam stats=stats}}
