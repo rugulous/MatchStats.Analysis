@@ -109,6 +109,37 @@ app.get("/stat-sync", async (_, res) => {
     res.json(await getStatTypes());
 });
 
+app.get("/stats", async (req, res) => {
+    const now = new Date();
+    let year = parseInt(req.query.year as string);
+    let month = parseInt(req.query.month as string);
+
+    if(isNaN(year)){
+        year = now.getFullYear();
+    }
+
+    if(isNaN(month)){
+        month = now.getMonth();
+    }
+
+    const targetMonth = new Date(year, month, 1);
+
+    const [matches, stats] = await Promise.all([listMatches(targetMonth), getStats({forTeam: "Totty", month: targetMonth})]);
+
+    res.render('stat-detail.hbs', {
+        title: targetMonth.toLocaleDateString("en-GB", {year: 'numeric', month: 'long'}) + " Stats",
+        matches: await Promise.all(matches.map(async match => {
+            return {
+                ...match,
+                segments: await Promise.all(match.Segments.map(async s => await getStats({matchSegmentId: s})))
+            }
+        })),
+        allStats: stats,
+        noMatches: matches.length == 0,
+        month: targetMonth
+    });
+});
+
 app.get('/:id/timeline', async (req, res) => {
     const data = await getTimeline(req.params.id);
     if(!data){

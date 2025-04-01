@@ -1,0 +1,32 @@
+<style>
+    summary h3{
+        display: inline-block;
+    }
+</style>
+
+{{> header}}
+
+<div class="container">
+    <p><a href="/">← Back to Match List</a></p>
+
+    <h2>{{title}}</h2>
+
+    {{#if noMatches}}
+        <div class="alert alert-danger text-center">No matches found</div>
+    {{else}}
+
+    {{> statTable homeTeam="Totty" awayTeam="Opposition" stats=allStats}}
+
+    <hr class="my-3" />
+
+    {{#each matches}}
+        <details>
+        <summary><h3><i>{{HomeTeam}} vs {{AwayTeam}} ({{HomeGoals}} - {{AwayGoals}})</i></h3></summary>
+        {{#each segments}}
+        {{> statTable homeTeam=../HomeTeam awayTeam=../AwayTeam stats=this}}
+        {{/each}}
+        </details>
+    {{/each}}
+
+    {{/if}}
+</div>

@@ -142,10 +142,34 @@ export async function getStatTypes(){
     };
 }
 
-export async function listMatches(){
-    const {data} = await executeQuery("SELECT * FROM Matches m LEFT OUTER JOIN (SELECT MatchID, MIN(StartTime) StartTime FROM MatchSegments GROUP BY MatchID) start ON start.MatchID = m.ID ORDER BY StartTime DESC");
+export async function listMatches(forMonth?: Date){
+    let query = "SELECT m.*, ms.StartTime, ms.ID AS MatchSegmentID FROM Matches m LEFT OUTER JOIN MatchSegments ms ON ms.MatchID = m.ID ";
+    const params = [];
 
-    return data.map(d => ({...d, StartTime: new Date(d.StartTime), HasTimestamps: !!d.HasTimestamps}));
+    if(forMonth){
+        query += "WHERE YEAR(FROM_UNIXTIME(StartTime / 1000)) = ? AND MONTH(FROM_UNIXTIME(StartTime / 1000)) = ? ";
+        params.push(forMonth.getFullYear(), forMonth.getMonth() + 1);
+    }
+
+    query += "ORDER BY StartTime DESC";
+
+    const {data} = await executeQuery(query, ...params);
+    const matches = data.reduce((acc, row) => {    
+        const segmentStart = new Date(row.StartTime);
+
+        if(!acc.hasOwnProperty(row.ID)){
+            acc[row.ID] = {...row, StartTime: segmentStart, HasTimestamps: !!row.HasTimestamps, Segments: []}
+        }
+
+        acc[row.ID].Segments.push(row.MatchSegmentID);
+        if(segmentStart < acc[row.ID].StartTime){
+            acc[row.ID].StartTime = segmentStart;
+        }
+
+        return acc;
+    }, {} as {[key: string]: {StartTime: Date, HasTimestamps: boolean, Segments: number[]}});
+
+    return Object.values(matches);
 }
 
 type SegmentEvents = {
@@ -306,8 +330,8 @@ export async function getMatchAndShallowSegments(matchId: string){
     };
 }
 
-export async function getStats({matchSegmentId, forTeam}: {matchSegmentId?: number, forTeam?: string}){
-    const {query, params} = buildStatsQuery(matchSegmentId, forTeam);
+export async function getStats({matchSegmentId, forTeam, month}: {matchSegmentId?: number, forTeam?: string, month?: Date}){
+    const {query, params} = buildStatsQuery(matchSegmentId, forTeam, month);
     const {data} = await executeQuery(query, ...params);
 
     const result: {[key: string]: any} = {};
@@ -335,7 +359,7 @@ export async function getStats({matchSegmentId, forTeam}: {matchSegmentId?: numb
     return result;
 }
 
-function buildStatsQuery(matchSegmentId?: number, forTeam?: string){
+function buildStatsQuery(matchSegmentId?: number, forTeam?: string, month?: Date){
     const params = [];
     let query = "SELECT mst.Description, ";
 
@@ -359,7 +383,14 @@ function buildStatsQuery(matchSegmentId?: number, forTeam?: string){
         query += "LEFT OUTER JOIN Matches m ON m.ID = s.MatchID ";
     }
 
-    query += "LEFT OUTER JOIN Outcomes o ON o.ID = ms.OutcomeID LEFT OUTER JOIN StatBuckets sb ON sb.ID = o.StatBucketID GROUP BY mst.ID, mst.Description, "
+    query += "LEFT OUTER JOIN Outcomes o ON o.ID = ms.OutcomeID LEFT OUTER JOIN StatBuckets sb ON sb.ID = o.StatBucketID ";
+
+    if(month){
+        query += "WHERE YEAR(FROM_UNIXTIME(s.StartTime / 1000)) = ? AND MONTH(FROM_UNIXTIME(s.StartTime / 1000)) = ? ";
+        params.push(month.getFullYear(), month.getMonth() + 1);
+    }
+
+    query += "GROUP BY mst.ID, mst.Description, ";
 
     if(forTeam){
         query += "CASE WHEN (m.HomeTeam LIKE CONCAT('%', ?, '%') AND IsHome = 1) OR (m.AwayTeam LIKE CONCAT('%', ?, '%') AND IsHome = 0) THEN 1 ELSE 0 END";
