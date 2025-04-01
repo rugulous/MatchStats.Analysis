@@ -95,13 +95,14 @@ app.post("/paper-stats", async (req, res) => {
 });
 
 app.get("/", async (_, res) => {
-    const [matches, stats] = await Promise.all([listMatches(), getStats({forTeam: "Totty"})]);
+    const [matches, stats, [latestMonth]] = await Promise.all([listMatches(), getStats({forTeam: "Totty"}), getActiveMonths()]);
 
     res.render('list-matches.hbs', {
         title: "All Matches",
         matches: matches,
         allStats: stats,
-        statStart: new Date(matches[matches.length - 1].StartTime)
+        statStart: new Date(matches[matches.length - 1].StartTime),
+        latestMonth
     });
 });
 
@@ -123,9 +124,7 @@ app.get("/stats", async (req, res) => {
     }
 
     const targetMonth = new Date(year, month, 1);
-
     const [matches, stats, activeMonths] = await Promise.all([listMatches(targetMonth), getStats({forTeam: "Totty", month: targetMonth}), getActiveMonths()]);
-    console.log(activeMonths);
 
     res.render('stat-detail.hbs', {
         title: targetMonth.toLocaleDateString("en-GB", {year: 'numeric', month: 'long'}) + " Stats",
@@ -140,8 +139,8 @@ app.get("/stats", async (req, res) => {
         month: targetMonth,
         activeMonths: activeMonths.map(m => ({
             year: m.Year,
-            month: m.Month - 1,
-            label: new Date(m.Year, m.Month - 1, 1).toLocaleDateString("en-GB", {month: 'long', year: 'numeric'})
+            month: m.Month,
+            label: new Date(m.Year, m.Month, 1).toLocaleDateString("en-GB", {month: 'long', year: 'numeric'})
         }))
     });
 });

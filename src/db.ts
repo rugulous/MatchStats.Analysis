@@ -399,7 +399,7 @@ function buildStatsQuery(matchSegmentId?: number, forTeam?: string, month?: Date
         query += "ms.IsHome";
     }
 
-    query += ", o.Name, sb.Name, sb.IsCollapsed ORDER BY mst.ID, sb.ID, o.SortOrder";
+    query += ", o.Name, sb.Name, sb.IsCollapsed ORDER BY mst.ID, sb.ID, o.SortOrder, o.ID";
 
     return {query, params};
 }
@@ -413,6 +413,6 @@ export async function setVideoLink(matchId: string, link: string){
 }
 
 export async function getActiveMonths(){
-    const {data} = await executeQuery("SELECT DISTINCT MONTH(FROM_UNIXTIME(StartTime / 1000)) Month, YEAR(FROM_UNIXTIME(StartTime / 1000)) Year FROM MatchSegments ORDER BY StartTime DESC");
+    const {data} = await executeQuery("SELECT DISTINCT MONTH(FROM_UNIXTIME(StartTime / 1000)) - 1 Month, YEAR(FROM_UNIXTIME(StartTime / 1000)) Year FROM MatchSegments ORDER BY StartTime DESC");
     return data;
 }
