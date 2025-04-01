@@ -309,7 +309,6 @@ export async function getMatchAndShallowSegments(matchId: string){
 export async function getStats({matchSegmentId, forTeam}: {matchSegmentId?: number, forTeam?: string}){
     const {query, params} = buildStatsQuery(matchSegmentId, forTeam);
     const {data} = await executeQuery(query, ...params);
-    console.log(data);
 
     const result: {[key: string]: any} = {};
     
@@ -370,9 +369,6 @@ function buildStatsQuery(matchSegmentId?: number, forTeam?: string){
     }
 
     query += ", o.Name, sb.Name, sb.IsCollapsed ORDER BY mst.ID, sb.ID, o.SortOrder";
-
-    console.log(query)
-    console.log(params)
 
     return {query, params};
 }
