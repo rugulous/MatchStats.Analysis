@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getMatchAndShallowSegments, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset } from './db';
+import { createManualMatch, getActiveMonths, getMatchAndShallowSegments, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -124,7 +124,8 @@ app.get("/stats", async (req, res) => {
 
     const targetMonth = new Date(year, month, 1);
 
-    const [matches, stats] = await Promise.all([listMatches(targetMonth), getStats({forTeam: "Totty", month: targetMonth})]);
+    const [matches, stats, activeMonths] = await Promise.all([listMatches(targetMonth), getStats({forTeam: "Totty", month: targetMonth}), getActiveMonths()]);
+    console.log(activeMonths);
 
     res.render('stat-detail.hbs', {
         title: targetMonth.toLocaleDateString("en-GB", {year: 'numeric', month: 'long'}) + " Stats",
@@ -136,7 +137,12 @@ app.get("/stats", async (req, res) => {
         })),
         allStats: stats,
         noMatches: matches.length == 0,
-        month: targetMonth
+        month: targetMonth,
+        activeMonths: activeMonths.map(m => ({
+            year: m.Year,
+            month: m.Month - 1,
+            label: new Date(m.Year, m.Month - 1, 1).toLocaleDateString("en-GB", {month: 'long', year: 'numeric'})
+        }))
     });
 });
 

@@ -411,3 +411,8 @@ export async function setVideoOffset(segmentId: number, offset: number){
 export async function setVideoLink(matchId: string, link: string){
     await executeQuery("UPDATE Matches SET VideoLink = ? WHERE ID = ?", link, matchId);
 }
+
+export async function getActiveMonths(){
+    const {data} = await executeQuery("SELECT DISTINCT MONTH(FROM_UNIXTIME(StartTime / 1000)) Month, YEAR(FROM_UNIXTIME(StartTime / 1000)) Year FROM MatchSegments ORDER BY StartTime DESC");
+    return data;
+}

@@ -10,6 +10,15 @@
     <p><a href="/">← Back to Match List</a></p>
 
     <h2>{{title}}</h2>
+    <div class="input-group mb-3">
+        <select class="form-control" id="monthSelector">
+            <option value="">-- Choose a Month --</option>
+            {{#each activeMonths}}
+            <option value="{{year}}-{{month}}">{{label}}</option>
+            {{/each}}
+        </select>
+        <button class="btn btn-outline-primary" type="button" id="monthMover">Go!</button>
+    </div>
 
     {{#if noMatches}}
         <div class="alert alert-danger text-center">No matches found</div>
@@ -30,3 +39,18 @@
 
     {{/if}}
 </div>
+
+<script>
+    const btn = document.getElementById("monthMover");
+    const dropdown = document.getElementById("monthSelector");
+
+    btn.addEventListener("click", () => {
+        if(dropdown.value.trim().length == 0){
+            alert("Please select a month to view");
+            return;
+        }
+
+        const parts = dropdown.value.split("-").map(x => parseInt(x));
+        document.location.href = `?year=${parts[0]}&month=${parts[1]}`;
+    });
+</script>
