@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getActiveMonths, getMatchAndShallowSegments, getSquad, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset } from './db';
+import { createManualMatch, getActiveMonths, getAttendanceForSquad, getEvents, getMatchAndShallowSegments, getSquad, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -149,6 +149,30 @@ app.get("/squad", async (_, res) => {
     res.render("squad.hbs", {
         title: "Manage Squad",
         sections: await getSquad()
+    })
+});
+
+app.get("/squad/attendance", async (_, res) => {
+    const attendances = ['A', 'U', 'K', 'F', 'N'];
+
+    const [squad, events] = await Promise.all([getSquad(), getEvents()]);
+    const squadWithAttendance = await getAttendanceForSquad(squad);
+
+    for(let i = 0; i < 3; i++){
+        events.push(...events);
+        squadWithAttendance.forEach(section => {
+            section.players.forEach((p: any) => {
+                p.attendance.push(...p.attendance.map((_: any) => attendances[Math.floor(Math.random()*attendances.length)]));
+            })
+        })
+    }
+
+    
+
+    res.render("attendance.hbs", {
+        title: "Attendance",
+        squad: squadWithAttendance,
+        events
     })
 });
 

@@ -444,3 +444,28 @@ export async function getSquad(){
         return acc;
     }, {}));
 }
+
+export async function getEvents(){
+    const {data} = await executeQuery("SELECT * FROM Events");
+    return data;
+}
+
+export async function getAttendanceForSquad(squad: any[]){
+    const {data} = await executeQuery("SELECT p.ID, 'A' AS Attendance FROM Players p CROSS JOIN Events ORDER BY Date");
+    const attendanceMap = data.reduce((acc: {[key:string]: any}, row) => {
+        if(!acc.hasOwnProperty(row.ID)){
+            acc[row.ID] = []
+        }
+
+        acc[row.ID].push(row.Attendance);
+        return acc;
+    }, {});
+
+    return squad.map(section => ({
+        ...section,
+        players: section.players.map((player: any) => ({
+            ...player,
+            attendance: attendanceMap[player.id] ?? []
+        }))
+    }))
+}

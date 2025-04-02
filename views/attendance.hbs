@@ -1,0 +1,79 @@
+<style>
+    tr{
+        min-height: 41px;
+    }
+
+    .stuck{
+        position: absolute;
+        width: 10rem;
+        left: 0;
+    }
+
+    .table-responsive{
+        margin-left: calc(10rem + 10px);
+    }
+
+    .section-row:not(:first-of-type) td{
+        padding-top: 3rem;
+    }
+
+    td:not(.stuck), th:not(.stuck){
+        text-align: center;
+        padding: .5rem;
+    }
+
+    td[data-value="A"]{
+        background-color: green;
+        color: #FFF;
+    }
+
+    td[data-value="U"]{
+        background-color: #222;
+        color: #FFF;
+    }
+
+    td[data-value="K"]{
+        background-color: orange;
+    }
+
+    td[data-value="F"]{
+        background-color: rgb(var(--totty));
+        color: #FFF;
+    }
+
+    td[data-value="N"]{
+        background-color: #F00;
+        color: #FFF;
+    }
+</style>
+
+{{> header}}
+
+<div class="table-responsive">
+    <table class="table">
+        <thead>
+            <tr>
+                <th class="stuck border-0"></th>
+                {{#each events}}
+                <th>{{Name}} <i>({{fmtDate Date}})</i></th>
+                {{/each}}
+            </tr>
+        </thead>
+        <tbody>
+            {{#each squad}}
+            <tr class="section-row">
+                <td class="stuck"><b>{{name}}</b></td>
+                <td class="border-0" colspan="{{../events.length}}">&nbsp;</td>
+            </tr>
+            {{#each players}}
+            <tr>
+                <td class="stuck">{{firstName}} {{lastName}}</td>
+                {{#each attendance}}
+                <td data-value="{{this}}">{{this}}</td>
+                {{/each}}
+            </tr>
+            {{/each}}
+            {{/each}}
+        </tbody>
+    </table>
+</div>
