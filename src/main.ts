@@ -47,6 +47,21 @@ const getData = async (id: string) => {
     return {data, title};
 }
 
+app.get("/", async (_, res) => {
+    const [matches, stats] = await Promise.all([listMatches(), getStats({forTeam: "Totty"})]);
+
+    res.render('list-matches.hbs', {
+        title: "All Matches",
+        matches: groupMatchesByMonth(matches),
+        allStats: stats,
+        statStart: new Date(matches[matches.length - 1].StartTime),
+    });
+});
+
+app.get("/stat-sync", async (_, res) => {
+    res.json(await getStatTypes());
+});
+
 app.get("/paper-stats", (_, res) => res.render("paper-stats.hbs", {
     title: "Add Paper Stats"
 }));
@@ -94,21 +109,6 @@ app.post("/paper-stats", async (req, res) => {
     res.redirect(`/${id}`);
 });
 
-app.get("/", async (_, res) => {
-    const [matches, stats] = await Promise.all([listMatches(), getStats({forTeam: "Totty"})]);
-
-    res.render('list-matches.hbs', {
-        title: "All Matches",
-        matches: groupMatchesByMonth(matches),
-        allStats: stats,
-        statStart: new Date(matches[matches.length - 1].StartTime),
-    });
-});
-
-app.get("/stat-sync", async (_, res) => {
-    res.json(await getStatTypes());
-});
-
 app.get("/stats", async (req, res) => {
     const now = new Date();
     let year = parseInt(req.query.year as string);
@@ -145,6 +145,62 @@ app.get("/stats", async (req, res) => {
     });
 });
 
+app.get("/squad", async (_, res) => {
+    res.render("squad.hbs", {
+        title: "Manage Squad",
+        sections: [{
+            name: "Keepers",
+            players: [{
+                name: "Nathan Gilray"
+            }]
+        }, {
+            name: "Full Backs",
+            players: [{
+                name: "Ste Kennedy"
+            }, {
+                name: "Oscar Hartley"
+            }]
+        }, {
+            name: "Center Backs",
+            players: [{
+                name: "Jaydon Williams"
+            }, {
+                name: "Mason Bradley"
+            }, {
+                name: "Matt McBurnie"
+            }]
+        }, {
+            name: "Midfield",
+            players: [{
+                name: "Kai Strange"
+            }, {
+                name: "Ethan Denny"
+            }, {
+                name: "Josh Merrick"
+            }]
+        }, {
+            name: "Forwards",
+            players: [{
+                name: "Harry Serridge"
+            }, {
+                name: "Arta Majdi"
+            }, {
+                name: "Tony Mendy"
+            }, {
+                name: "Messiah"
+            }, {
+                name: "Johnny Stokes"
+            }, {
+                name: "Archie Mills"
+            }, {
+                name: "Jack Cabrelli"
+            }, {
+                name: "Matty Livingston"
+            }]
+        }]
+    })
+});
+
 app.get('/:id/timeline', async (req, res) => {
     const data = await getTimeline(req.params.id);
     if(!data){
@@ -159,6 +215,7 @@ app.get('/:id/timeline', async (req, res) => {
         segments: data.segments
     })
 });
+
 app.get('/:id/stats', async (req, res) => {
     const match = await getMatchAndShallowSegments(req.params.id);
     if(!match){
@@ -224,6 +281,7 @@ app.get('/:id/stats', async (req, res) => {
         segments
     })
 });
+
 app.get('/:id/graphs', async (req, res) => {
     const _data = await getData(req.params.id);
     if(!_data){

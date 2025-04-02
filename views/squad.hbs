@@ -1,0 +1,100 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.min.css">
+
+{{> header}}
+
+<div class="container">
+    <h2>Manage Squad</h2>
+
+    <div class="my-3">
+        <button class="btn btn-primary">+ Add Player</button>
+        <button class="btn btn-success">+ Add Section</button>
+    </div>
+
+    <div class="row row-cols-1 row-cols-xl-3">
+        {{#each sections}}
+        <div class="col mb-3">
+            <div class="card">
+                <div class="card-header"><b>{{name}}</b> <span class="badge text-bg-secondary">{{players.length}}</span></div>
+                <div class="list-group list-group-flush">
+                    {{#each players}}
+                    <div class="list-group-item" data-name="{{name}}" data-section="{{../name}}">
+                        <div class="d-flex w-100 justify-content-between align-items-center">
+                            <p class="m-0">{{name}}</p>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">...</button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item change-section" href="#">Change Section</a></li>
+                                    <li><a class="dropdown-item text-bg-danger remove" href="#">Remove Player</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<script>
+    document.querySelectorAll(".remove").forEach(el => {
+        el.addEventListener("click", (e) => {
+            e.preventDefault();
+            console.log(e.target.parentNode.parentNode.parentNode.parentNode);
+            const playerName = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.dataset.name;
+
+            Swal.fire({
+                title: `Remove ${playerName}?`,
+                text: `Are you sure you wish to remove ${playerName} from the squad?`,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, remove him!"
+            })
+        })
+    });
+
+    document.querySelectorAll(".change-section").forEach(el => {
+        el.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            const { value: fruit } = await Swal.fire({
+                title: "Select new section",
+                input: "select",
+                inputOptions: {
+                    Fruits: {
+                        apples: "Apples",
+                        bananas: "Bananas",
+                        grapes: "Grapes",
+                        oranges: "Oranges"
+                    },
+                    Vegetables: {
+                        potato: "Potato",
+                        broccoli: "Broccoli",
+                        carrot: "Carrot"
+                    },
+                    icecream: "Ice cream"
+                },
+                inputPlaceholder: "Select a fruit",
+                showCancelButton: true,
+                inputValidator: (value) => {
+                    return new Promise((resolve) => {
+                        if (value === "oranges") {
+                            resolve();
+                        } else {
+                            resolve("You need to select oranges :)");
+                        }
+                    });
+                }
+            });
+            if (fruit) {
+                Swal.fire(`You selected: ${fruit}`);
+            }
+        })
+    })
+</script>
