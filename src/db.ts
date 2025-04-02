@@ -422,3 +422,25 @@ export async function getActiveMonths(){
     const {data} = await executeQuery("SELECT DISTINCT MONTH(FROM_UNIXTIME(StartTime / 1000)) - 1 Month, YEAR(FROM_UNIXTIME(StartTime / 1000)) Year FROM MatchSegments ORDER BY StartTime DESC");
     return data;
 }
+
+export async function getSquad(){
+    const {data} = await executeQuery("SELECT ssp.SquadSectionID, ss.Name AS SquadSectionName, ssp.PlayerID, p.FirstName, p.LastName FROM Players p INNER JOIN SquadSectionPlayers ssp ON ssp.PlayerID = p.ID INNER JOIN SquadSections ss ON ss.ID = ssp.SquadSectionID WHERE ss.IsActive = 1 AND ssp.IsActive = 1");
+
+    return Object.values(data.reduce((acc: {[key: string]: any}, row) => {
+        if(!acc.hasOwnProperty(row.SquadSectionID)){
+            acc[row.SquadSectionID] = {
+                id: row.SquadSectionID,
+                name: row.SquadSectionName,
+                players: []
+            }
+        }
+
+        acc[row.SquadSectionID].players.push({
+            id: row.PlayerID,
+            firstName: row.FirstName,
+            lastName: row.LastName
+        });
+
+        return acc;
+    }, {}));
+}

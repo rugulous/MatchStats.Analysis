@@ -17,9 +17,9 @@
                 <div class="card-header"><b>{{name}}</b> <span class="badge text-bg-secondary">{{players.length}}</span></div>
                 <div class="list-group list-group-flush">
                     {{#each players}}
-                    <div class="list-group-item" data-name="{{name}}" data-section="{{../name}}">
+                    <div class="list-group-item" data-name="{{firstName}} {{lastName}}" data-section="{{../name}}">
                         <div class="d-flex w-100 justify-content-between align-items-center">
-                            <p class="m-0">{{name}}</p>
+                            <p class="m-0">{{firstName}} {{lastName}}</p>
                             <div class="dropdown">
                                 <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">...</button>
                                 <ul class="dropdown-menu">

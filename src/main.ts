@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getActiveMonths, getMatchAndShallowSegments, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset } from './db';
+import { createManualMatch, getActiveMonths, getMatchAndShallowSegments, getSquad, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -148,56 +148,7 @@ app.get("/stats", async (req, res) => {
 app.get("/squad", async (_, res) => {
     res.render("squad.hbs", {
         title: "Manage Squad",
-        sections: [{
-            name: "Keepers",
-            players: [{
-                name: "Nathan Gilray"
-            }]
-        }, {
-            name: "Full Backs",
-            players: [{
-                name: "Ste Kennedy"
-            }, {
-                name: "Oscar Hartley"
-            }]
-        }, {
-            name: "Center Backs",
-            players: [{
-                name: "Jaydon Williams"
-            }, {
-                name: "Mason Bradley"
-            }, {
-                name: "Matt McBurnie"
-            }]
-        }, {
-            name: "Midfield",
-            players: [{
-                name: "Kai Strange"
-            }, {
-                name: "Ethan Denny"
-            }, {
-                name: "Josh Merrick"
-            }]
-        }, {
-            name: "Forwards",
-            players: [{
-                name: "Harry Serridge"
-            }, {
-                name: "Arta Majdi"
-            }, {
-                name: "Tony Mendy"
-            }, {
-                name: "Messiah"
-            }, {
-                name: "Johnny Stokes"
-            }, {
-                name: "Archie Mills"
-            }, {
-                name: "Jack Cabrelli"
-            }, {
-                name: "Matty Livingston"
-            }]
-        }]
+        sections: await getSquad()
     })
 });
 
