@@ -435,6 +435,21 @@ app.post("/:id/video", async (req, res) => {
     res.redirect(`/${req.params.id}/timeline`);
 });
 
+app.get("/:id/attendance", async (req, res) => {
+    const match = await getMatchAndShallowSegments(req.params.id);
+    const squad = await getSquad();
+
+    if(!match){
+        res.sendStatus(404);
+        return;
+    }
+
+    res.render("match/attendance.hbs", {
+        title: `${match.homeTeam} ${match.homeGoals}-${match.awayGoals} ${match.awayTeam}`,
+        squad
+    });
+});
+
 app.get('/:id/', (req, res) => res.redirect(`/${req.params.id}/stats`));
 
 app.post("/record-match", async (req, res) => {
