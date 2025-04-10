@@ -61,18 +61,18 @@
         </thead>
         <tbody>
             {{#each squad}}
-            <tr class="section-row">
-                <td class="stuck"><b>{{name}}</b></td>
-                <td class="border-0" colspan="{{../events.length}}">&nbsp;</td>
-            </tr>
-            {{#each players}}
-            <tr>
-                <td class="stuck">{{firstName}} {{lastName}}</td>
-                {{#each attendance}}
-                <td data-value="{{this}}">{{this}}</td>
+                <tr class="section-row">
+                    <td class="stuck"><b>{{name}}</b></td>
+                    <td class="border-0" colspan="{{../events.length}}">&nbsp;</td>
+                </tr>
+                {{#each players}}
+                    <tr>
+                        <td class="stuck">{{firstName}} {{lastName}}</td>
+                        {{#each attendance}}
+                        <td data-value="{{this}}">{{this}}</td>
+                        {{/each}}
+                    </tr>
                 {{/each}}
-            </tr>
-            {{/each}}
             {{/each}}
         </tbody>
     </table>

@@ -169,7 +169,7 @@ app.get("/squad/attendance", async (_, res) => {
 
     
 
-    res.render("attendance.hbs", {
+    res.render("squad-attendance.hbs", {
         title: "Attendance",
         squad: squadWithAttendance,
         events
