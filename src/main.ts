@@ -183,7 +183,7 @@ app.get('/:id/timeline', async (req, res) => {
         return;
     }
 
-    res.render('timeline.hbs', {
+    res.render('match/timeline.hbs', {
         title: `${data.homeTeam} ${data.homeGoals}-${data.awayGoals} ${data.awayTeam}`,
         hasTimestamps: data.hasTimestamps,
         videoLink: data.videoLink,
@@ -247,7 +247,7 @@ app.get('/:id/stats', async (req, res) => {
 
     segments.unshift(overallSegment);
 
-    res.render('stats.hbs', {
+    res.render('match/stats.hbs', {
         title: `${match.homeTeam} ${match.homeGoals}-${match.awayGoals} ${match.awayTeam}`,
         hasTimestamps: match.hasTimestamps,
         videoLink: match.videoLink,
@@ -374,7 +374,7 @@ app.get('/:id/graphs', async (req, res) => {
         [homeColours, awayColours] = [awayColours, homeColours];
     }
 
-    res.render('graphs.hbs', {title, videoLink: data.videoLink, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, colours: {home: homeColours, away: awayColours}, ...stats});
+    res.render('match/graphs.hbs', {title, videoLink: data.videoLink, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, colours: {home: homeColours, away: awayColours}, ...stats});
 });
 
 app.get("/:id/video", async (req, res) => {
@@ -384,7 +384,7 @@ app.get("/:id/video", async (req, res) => {
         return;
     }
 
-    res.render('video-config.hbs', {
+    res.render('match/video-config.hbs', {
         title: `${match.homeTeam} ${match.homeGoals}-${match.awayGoals} ${match.awayTeam}`,
         videoLink: match.videoLink,
         hasTimestamps: match.hasTimestamps,
