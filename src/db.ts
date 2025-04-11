@@ -456,7 +456,7 @@ export async function getSquad(){
 }
 
 export async function getEvents(){
-    const {data} = await executeQuery("SELECT * FROM Events");
+    const {data} = await executeQuery("SELECT * FROM Events ORDER BY Date");
     return data;
 }
 
