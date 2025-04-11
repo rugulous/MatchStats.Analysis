@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getActiveMonths, getAttendanceForSquad, getEvents, getMatchAndShallowSegments, getSquad, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset } from './db';
+import { createManualMatch, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -153,21 +153,17 @@ app.get("/squad", async (_, res) => {
 });
 
 app.get("/squad/attendance", async (_, res) => {
-    const attendances = ['A', 'U', 'K', 'F', 'N'];
-
-    const [squad, events] = await Promise.all([getSquad(), getEvents()]);
+    const [squad, events, attendances] = await Promise.all([getSquad(), getEvents(), getAttendanceStatuses()]);
     const squadWithAttendance = await getAttendanceForSquad(squad);
 
     for(let i = 0; i < 3; i++){
         events.push(...events);
         squadWithAttendance.forEach(section => {
             section.players.forEach((p: any) => {
-                p.attendance.push(...p.attendance.map((_: any) => attendances[Math.floor(Math.random()*attendances.length)]));
+                p.attendance.push(...p.attendance.map((_: any) => attendances[Math.floor(Math.random()*attendances.length)].ID));
             })
         })
     }
-
-    
 
     res.render("squad-attendance.hbs", {
         title: "Attendance",
@@ -436,17 +432,22 @@ app.post("/:id/video", async (req, res) => {
 });
 
 app.get("/:id/attendance", async (req, res) => {
-    const match = await getMatchAndShallowSegments(req.params.id);
-    const squad = await getSquad();
+    const [match, statuses] = await Promise.all([
+        getMatchAndShallowSegments(req.params.id),
+        getAttendanceStatuses()
+    ]);
 
     if(!match){
         res.sendStatus(404);
         return;
     }
 
+    const squad = await getSquadForEvent(match.eventId);
+
     res.render("match/attendance.hbs", {
         title: `${match.homeTeam} ${match.homeGoals}-${match.awayGoals} ${match.awayTeam}`,
-        squad
+        squad,
+        statuses
     });
 });
 

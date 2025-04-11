@@ -44,7 +44,6 @@
     document.querySelectorAll(".remove").forEach(el => {
         el.addEventListener("click", (e) => {
             e.preventDefault();
-            console.log(e.target.parentNode.parentNode.parentNode.parentNode);
             const playerName = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.dataset.name;
 
             Swal.fire({

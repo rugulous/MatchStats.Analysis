@@ -3,31 +3,27 @@
 <div class="container">
     <h2>Attendance</h2>
 
-    {{#each squad}}
-    <h3 class="mt-3">{{name}}</h3>
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 text-center">
+    {{#each squad}}
         {{#each players}}
         <div>
             <div class="card mb-3" id="{{id}}">
                 <div class="card-body">
-                    <p class="fw-bold fs-5">{{firstName}} {{lastName}}</p>
+                    <p class="fw-bold fs-5 card-title">{{firstName}} {{lastName}}</p>
+                    <p class="fw-bold fst-italic text-body-secondary">{{../name}}</p>
 
-                    <div class="alert alert-danger">This player is injured</div>
-                    <div class="alert alert-danger">This player is not currently at the club</div>
-                    <div class="alert alert-warning">This player has not been selected</div>
-
-                    <div class="form-check">
-                        <input class="form-check-input float-none" name="{{id}}" data-id="{{id}}" type="checkbox" value="" id="{{id}}-attended">
-                        <label class="form-check-label" for="{{id}}-attended">
-                           Present?
-                        </label>
-                    </div>
+                    <label>Attendance Status</label>
+                    <select class="form-control" name="{{id}}">
+                        {{#each ../../statuses}}
+                        <option class="attend-{{ID}}" value="{{ID}}"{{#if (eq ID ../attendance)}} selected{{/if}}>{{Name}}</option>
+                        {{/each}}
+                    </select>
                 </div>
             </div>
         </div>
         {{/each}}
-    </div>
     {{/each}}
+    </div>
 
     <button class="btn btn-lg btn-primary my-3">Save</button>
 </div>

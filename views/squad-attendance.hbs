@@ -21,30 +21,6 @@
         text-align: center;
         padding: .5rem;
     }
-
-    td[data-value="A"]{
-        background-color: green;
-        color: #FFF;
-    }
-
-    td[data-value="U"]{
-        background-color: #222;
-        color: #FFF;
-    }
-
-    td[data-value="K"]{
-        background-color: orange;
-    }
-
-    td[data-value="F"]{
-        background-color: rgb(var(--totty));
-        color: #FFF;
-    }
-
-    td[data-value="N"]{
-        background-color: #F00;
-        color: #FFF;
-    }
 </style>
 
 {{> header}}
@@ -69,7 +45,7 @@
                     <tr>
                         <td class="stuck">{{firstName}} {{lastName}}</td>
                         {{#each attendance}}
-                        <td data-value="{{this}}">{{this}}</td>
+                        <td class="attend-{{this}}">{{this}}</td>
                         {{/each}}
                     </tr>
                 {{/each}}
