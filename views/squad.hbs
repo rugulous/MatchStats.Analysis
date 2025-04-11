@@ -7,7 +7,7 @@
 
     <div class="my-3">
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-player">+ Add Player</button>
-        <button class="btn btn-success">+ Add Section</button>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#add-section">+ Add Section</button>
     </div>
 
     <div class="row row-cols-1 row-cols-xl-3">
@@ -74,6 +74,29 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button class="btn btn-primary">+ Add Player</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<form action="/add-section" method="post">
+    <div class="modal" tabindex="-1" id="add-section">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Section</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name"> Name</label>
+                        <input id="name" name="name" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary">+ Add Section</button>
                 </div>
             </div>
         </div>

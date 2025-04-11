@@ -425,7 +425,7 @@ export async function getActiveMonths(){
 }
 
 export async function getSquad(){
-    const {data} = await executeQuery("SELECT ssp.SquadSectionID, ss.Name AS SquadSectionName, ssp.PlayerID, p.FirstName, p.LastName FROM Players p INNER JOIN SquadSectionPlayers ssp ON ssp.PlayerID = p.ID INNER JOIN SquadSections ss ON ss.ID = ssp.SquadSectionID WHERE ss.IsActive = 1 AND ssp.IsActive = 1");
+    const {data} = await executeQuery("SELECT ssp.SquadSectionID, ss.Name AS SquadSectionName, ssp.PlayerID, p.FirstName, p.LastName FROM SquadSections ss LEFT OUTER JOIN SquadSectionPlayers ssp ON ssp.SquadSectionID = ss.ID AND ssp.IsActive = 1 LEFT OUTER JOIN Players p ON p.ID = ssp.PlayerID WHERE ss.IsActive = 1");
 
     return Object.values(data.reduce((acc: {[key: string]: any}, row) => {
         if(!acc.hasOwnProperty(row.SquadSectionID)){
@@ -436,11 +436,13 @@ export async function getSquad(){
             }
         }
 
-        acc[row.SquadSectionID].players.push({
-            id: row.PlayerID,
-            firstName: row.FirstName,
-            lastName: row.LastName
-        });
+        if(row.PlayerID){
+            acc[row.SquadSectionID].players.push({
+                id: row.PlayerID,
+                firstName: row.FirstName,
+                lastName: row.LastName
+            });
+        }
 
         return acc;
     }, {}));
@@ -510,4 +512,10 @@ export async function addPlayer(firstName: string, lastName: string, squadSectio
         executeQuery("INSERT INTO SquadSectionPlayers (ID, SquadSectionID, PlayerID, StartDate) VALUES (UUID(), ?, ?, ?)", squadSectionId, playerId, !startDate ? new Date() : startDate)
     ]);
     return playerId;
+}
+
+export async function addSection(name: string){
+    const id = crypto.randomUUID();
+    await executeQuery("INSERT INTO SquadSections (ID, Name) VALUES (?, ?)", id, name);
+    return id;
 }

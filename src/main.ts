@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { addPlayer, createManualMatch, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
+import { addPlayer, addSection, createManualMatch, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -463,6 +463,11 @@ app.post("/record-match", async (req, res) => {
 app.post("/add-player", async (req, res) => {
     const {fname, lname, section, startDate} = req.body;
     await addPlayer(fname, lname, section, startDate);
+    res.redirect("/squad");
+});
+
+app.post("/add-section", async (req, res) => {
+    await addSection(req.body.name);
     res.redirect("/squad");
 });
 
