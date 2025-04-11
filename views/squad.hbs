@@ -17,7 +17,7 @@
                 <div class="card-header"><b>{{name}}</b> <span class="badge text-bg-secondary">{{players.length}}</span></div>
                 <div class="list-group list-group-flush">
                     {{#each players}}
-                    <div class="list-group-item" data-name="{{firstName}} {{lastName}}" data-section="{{../name}}">
+                    <div class="list-group-item" data-id="{{id}}" data-name="{{firstName}} {{lastName}}" data-section="{{../id}}">
                         <div class="d-flex w-100 justify-content-between align-items-center">
                             <p class="m-0">{{firstName}} {{lastName}}</p>
                             <div class="dropdown">
@@ -103,10 +103,41 @@
     </div>
 </form>
 
+<form action="/change-section" method="post">
+    <div class="modal" tabindex="-1" id="change-section">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change <span id="section-player"></span>'s' Section</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="new-section">New Section</label>
+                        <select id="new-section" name="section" required class="form-control">
+                            <option value="">-- Please Select --</option>
+                            {{#each sections}}
+                                <option value="{{id}}">{{name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button class="btn btn-primary">Change Section</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" name="player" id="section-player-id" />
+</form>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.17.2/dist/sweetalert2.all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 <script>
+    const changeSectionModal = new bootstrap.Modal(document.getElementById("change-section"));
+
     document.querySelectorAll(".remove").forEach(el => {
         el.addEventListener("click", (e) => {
             e.preventDefault();
@@ -124,42 +155,19 @@
         })
     });
 
+    const sections = {
+                    {{#each sections}}
+                        '{{id}}': '{{name}}',
+                    {{/each}}
+                };
+
     document.querySelectorAll(".change-section").forEach(el => {
         el.addEventListener("click", async (e) => {
             e.preventDefault();
-
-            const { value: fruit } = await Swal.fire({
-                title: "Select new section",
-                input: "select",
-                inputOptions: {
-                    Fruits: {
-                        apples: "Apples",
-                        bananas: "Bananas",
-                        grapes: "Grapes",
-                        oranges: "Oranges"
-                    },
-                    Vegetables: {
-                        potato: "Potato",
-                        broccoli: "Broccoli",
-                        carrot: "Carrot"
-                    },
-                    icecream: "Ice cream"
-                },
-                inputPlaceholder: "Select a fruit",
-                showCancelButton: true,
-                inputValidator: (value) => {
-                    return new Promise((resolve) => {
-                        if (value === "oranges") {
-                            resolve();
-                        } else {
-                            resolve("You need to select oranges :)");
-                        }
-                    });
-                }
-            });
-            if (fruit) {
-                Swal.fire(`You selected: ${fruit}`);
-            }
+            const data = e.target.parentNode.parentNode.parentNode.parentNode.parentNode.dataset;
+            document.getElementById("section-player").innerHTML = data.name;
+            document.getElementById("section-player-id").value = data.id;
+            changeSectionModal.show();
         })
     })
 </script>

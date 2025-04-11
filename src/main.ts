@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { addPlayer, addSection, createManualMatch, deleteEvent, deleteMatch, deleteMatchSegment, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
+import { addPlayer, addSection, changeSection, createManualMatch, deleteEvent, deleteMatch, deleteMatchSegment, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -486,5 +486,11 @@ app.post("/add-section", async (req, res) => {
     await addSection(req.body.name);
     res.redirect("/squad");
 });
+
+app.post("/change-section", async (req, res) => {
+    const {section, player} = req.body;
+    await changeSection(section, player);
+    res.redirect("/squad");
+})
 
 app.listen(parseInt(process.env.PORT ?? "3000"), () => "Listening on port 3000!");

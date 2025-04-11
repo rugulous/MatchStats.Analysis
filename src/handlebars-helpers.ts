@@ -59,7 +59,6 @@ export default {
                 pages.push("Timeline", "Graphs");
             }
             
-            pages.push("Attendance");
             return pages;
         },
         eq: (a: any, b: any) => a == b,

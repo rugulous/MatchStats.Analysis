@@ -544,3 +544,9 @@ export async function deleteEvent(eventId: string){
 export async function deleteMatch(matchId: string){
     await executeQuery("DELETE FROM Matches WHERE ID = ?", matchId);
 }
+
+export async function changeSection(newSectionId: string, playerId: string){
+    const effectiveDate = new Date();
+    await executeQuery("UPDATE SquadSectionPlayers SET EndDate = ?, IsActive = 0 WHERE PlayerID = ? AND IsActive = 1", effectiveDate, playerId);
+    await executeQuery("INSERT INTO SquadSectionPlayers (ID, SquadSectionID, PlayerID, StartDate) VALUES (UUID(), ?, ?, ?)", newSectionId, playerId, effectiveDate);
+}
