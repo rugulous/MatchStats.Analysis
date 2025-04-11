@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset } from './db';
+import { createManualMatch, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -153,17 +153,8 @@ app.get("/squad", async (_, res) => {
 });
 
 app.get("/squad/attendance", async (_, res) => {
-    const [squad, events, attendances] = await Promise.all([getSquad(), getEvents(), getAttendanceStatuses()]);
+    const [squad, events] = await Promise.all([getSquad(), getEvents()]);
     const squadWithAttendance = await getAttendanceForSquad(squad);
-
-    for(let i = 0; i < 3; i++){
-        events.push(...events);
-        squadWithAttendance.forEach(section => {
-            section.players.forEach((p: any) => {
-                p.attendance.push(...p.attendance.map((_: any) => attendances[Math.floor(Math.random()*attendances.length)].ID));
-            })
-        })
-    }
 
     res.render("squad-attendance.hbs", {
         title: "Attendance",
@@ -449,6 +440,17 @@ app.get("/:id/attendance", async (req, res) => {
         squad,
         statuses
     });
+});
+
+app.post("/:id/attendance", async (req, res) => {
+    const match = await getMatchAndShallowSegments(req.params.id);
+    if(!match){
+        res.sendStatus(404);
+        return;
+    }
+
+    await Promise.all(Object.keys(req.body).map(async player => await updateAttendance(match.eventId, player, req.body[player])));
+    res.redirect(`/${req.params.id}/attendance`);
 });
 
 app.get('/:id/', (req, res) => res.redirect(`/${req.params.id}/stats`));

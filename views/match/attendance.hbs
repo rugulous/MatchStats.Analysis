@@ -3,36 +3,38 @@
 <div class="container">
     <h2>Attendance</h2>
 
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 text-center">
-    {{#each squad}}
-        {{#each players}}
-        <div>
-            <div class="card mb-3" id="{{id}}">
-                <div class="card-body">
-                    <p class="fw-bold fs-5 card-title">{{firstName}} {{lastName}}</p>
-                    <p class="fw-bold fst-italic text-body-secondary">{{../name}}</p>
+    <form method="post">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 text-center">
+            {{#each squad}}
+            {{#each players}}
+            <div>
+                <div class="card mb-3" id="{{id}}">
+                    <div class="card-body">
+                        <p class="fw-bold fs-5 card-title">{{firstName}} {{lastName}}</p>
+                        <p class="fw-bold fst-italic text-body-secondary">{{../name}}</p>
 
-                    <label>Attendance Status</label>
-                    <select class="form-control" name="{{id}}">
-                        {{#each ../../statuses}}
-                        <option class="attend-{{ID}}" value="{{ID}}"{{#if (eq ID ../attendance)}} selected{{/if}}>{{Name}}</option>
-                        {{/each}}
-                    </select>
+                        <label>Attendance Status</label>
+                        <select class="form-control" name="{{id}}">
+                            {{#each ../../statuses}}
+                            <option class="attend-{{ID}}" value="{{ID}}" {{#if (eq ID ../attendance)}} selected{{/if}}>{{Name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
                 </div>
             </div>
+            {{/each}}
+            {{/each}}
         </div>
-        {{/each}}
-    {{/each}}
-    </div>
 
-    <button class="btn btn-lg btn-primary my-3">Save</button>
+        <button class="btn btn-lg btn-primary my-3">Save</button>
+    </form>
 </div>
 
 <script>
     document.querySelectorAll("input[type=checkbox]").forEach(cb => {
         cb.addEventListener("change", () => {
             const card = document.getElementById(cb.dataset.id);
-            if(cb.checked){
+            if (cb.checked) {
                 card.classList.add("text-bg-success");
             } else {
                 card.classList.remove("text-bg-success");

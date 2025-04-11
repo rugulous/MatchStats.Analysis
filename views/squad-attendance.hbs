@@ -21,6 +21,11 @@
         text-align: center;
         padding: .5rem;
     }
+
+    .attend-NA{
+        font-style: italic;
+        background-color: #EEE !important;
+    }
 </style>
 
 {{> header}}
@@ -45,7 +50,7 @@
                     <tr>
                         <td class="stuck">{{firstName}} {{lastName}}</td>
                         {{#each attendance}}
-                        <td class="attend-{{this}}">{{this}}</td>
+                        <td class="attend-{{ifNull this "NA"}}">{{ifNull this "?"}}</td>
                         {{/each}}
                     </tr>
                 {{/each}}

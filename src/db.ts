@@ -452,13 +452,13 @@ export async function getEvents(){
 }
 
 export async function getAttendanceForSquad(squad: any[]){
-    const {data} = await executeQuery("SELECT p.ID, 'P' AS Attendance FROM Players p CROSS JOIN Events ORDER BY Date");
+    const {data} = await executeQuery("SELECT p.ID, e.ID AS EventID, ea.AttendanceStatus FROM Players p CROSS JOIN Events e LEFT OUTER JOIN EventAttendance ea ON ea.PlayerID = p.ID AND ea.EventID = e.ID ORDER BY Date");
     const attendanceMap = data.reduce((acc: {[key:string]: any}, row) => {
         if(!acc.hasOwnProperty(row.ID)){
             acc[row.ID] = []
         }
 
-        acc[row.ID].push(row.Attendance);
+        acc[row.ID].push(row.AttendanceStatus);
         return acc;
     }, {});
 
@@ -472,9 +472,7 @@ export async function getAttendanceForSquad(squad: any[]){
 }
 
 export async function getSquadForEvent(eventId: string){
-    const {data} = await executeQuery("SELECT ssp.SquadSectionID, ss.Name AS SquadSectionName, ssp.PlayerID, p.FirstName, p.LastName FROM Players p INNER JOIN SquadSectionPlayers ssp ON ssp.PlayerID = p.ID INNER JOIN SquadSections ss ON ss.ID = ssp.SquadSectionID WHERE (SELECT Date FROM Events WHERE ID = ?) BETWEEN ssp.StartDate AND IFNULL(ssp.EndDate, NOW())", eventId);
-
-    const attendanceStatuses = await getAttendanceStatuses();
+    const {data} = await executeQuery("SELECT ssp.SquadSectionID, ss.Name AS SquadSectionName, ssp.PlayerID, p.FirstName, p.LastName, ea.AttendanceStatus FROM (SELECT ID, Date FROM Events WHERE ID = ?) e CROSS JOIN Players p INNER JOIN SquadSectionPlayers ssp ON ssp.PlayerID = p.ID INNER JOIN SquadSections ss ON ss.ID = ssp.SquadSectionID LEFT JOIN EventAttendance ea ON ea.PlayerID = p.ID AND ea.EventID = e.ID WHERE e.Date BETWEEN ssp.StartDate AND IFNULL(ssp.EndDate, NOW())", eventId);
 
     return Object.values(data.reduce((acc: {[key: string]: any}, row) => {
         if(!acc.hasOwnProperty(row.SquadSectionID)){
@@ -489,7 +487,7 @@ export async function getSquadForEvent(eventId: string){
             id: row.PlayerID,
             firstName: row.FirstName,
             lastName: row.LastName,
-            attendance: attendanceStatuses[Math.floor(Math.random() * attendanceStatuses.length)].ID
+            attendance: row.AttendanceStatus
         });
 
         return acc;
@@ -499,4 +497,8 @@ export async function getSquadForEvent(eventId: string){
 export async function getAttendanceStatuses(){
     const {data} = await executeQuery("SELECT * FROM AttendanceStatuses ORDER BY Name");
     return data;
+}
+
+export async function updateAttendance(eventId: string, playerId: string, attendanceStatus: string){
+    await executeQuery("INSERT INTO EventAttendance (EventID, PlayerID, AttendanceStatus) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE AttendanceStatus = ?", eventId, playerId, attendanceStatus, attendanceStatus);
 }

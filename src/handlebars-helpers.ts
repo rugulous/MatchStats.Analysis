@@ -75,5 +75,6 @@ export default {
                 return 0;
             }
             return result;
-        }
+        },
+        ifNull: (val: any, fallback: any) => val ?? fallback
     }
