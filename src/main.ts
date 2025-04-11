@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { addPlayer, addSection, changeSection, createManualMatch, deleteEvent, deleteMatch, deleteMatchSegment, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
+import { addPlayer, addSection, changeSection, createEvent, createManualMatch, deleteEvent, deleteMatch, deleteMatchSegment, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEventById, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -423,35 +423,28 @@ app.post("/:id/video", async (req, res) => {
     res.redirect(`/${req.params.id}/timeline`);
 });
 
-app.get("/:id/attendance", async (req, res) => {
-    const [match, statuses] = await Promise.all([
-        getMatchAndShallowSegments(req.params.id),
+app.get("/event/:id", async (req, res) => {
+    const [event, squad, statuses] = await Promise.all([
+        getEventById(req.params.id),
+        getSquadForEvent(req.params.id),
         getAttendanceStatuses()
     ]);
 
-    if(!match){
+    if(!event){
         res.sendStatus(404);
         return;
     }
 
-    const squad = await getSquadForEvent(match.eventId);
-
-    res.render("match/attendance.hbs", {
-        title: `${match.homeTeam} ${match.homeGoals}-${match.awayGoals} ${match.awayTeam}`,
+    res.render("attendance.hbs", {
+        title: event.Name,
         squad,
         statuses
     });
 });
 
-app.post("/:id/attendance", async (req, res) => {
-    const match = await getMatchAndShallowSegments(req.params.id);
-    if(!match){
-        res.sendStatus(404);
-        return;
-    }
-
-    await Promise.all(Object.keys(req.body).map(async player => await updateAttendance(match.eventId, player, req.body[player])));
-    res.redirect(`/${req.params.id}/attendance`);
+app.post("/event/:id", async (req, res) => {
+    await Promise.all(Object.keys(req.body).map(async player => await updateAttendance(req.params.id, player, req.body[player])));
+    res.redirect(`/squad/attendance`);
 });
 
 app.get('/:id/', (req, res) => res.redirect(`/${req.params.id}/stats`));
@@ -492,6 +485,12 @@ app.post("/change-section", async (req, res) => {
     const {section, player} = req.body;
     await changeSection(section, player);
     res.redirect("/squad");
-})
+});
+
+app.post("/add-event", async (req, res) => {
+    const {name, date} = req.body;
+    const id = await createEvent(name, date);
+    res.redirect(`/event/${id}`);
+});
 
 app.listen(parseInt(process.env.PORT ?? "3000"), () => "Listening on port 3000!");

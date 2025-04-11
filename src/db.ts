@@ -550,3 +550,13 @@ export async function changeSection(newSectionId: string, playerId: string){
     await executeQuery("UPDATE SquadSectionPlayers SET EndDate = ?, IsActive = 0 WHERE PlayerID = ? AND IsActive = 1", effectiveDate, playerId);
     await executeQuery("INSERT INTO SquadSectionPlayers (ID, SquadSectionID, PlayerID, StartDate) VALUES (UUID(), ?, ?, ?)", newSectionId, playerId, effectiveDate);
 }
+
+export async function getEventById(id: string){
+    return await singleQuery("SELECT * FROM Events WHERE ID = ?", id);
+}
+
+export async function createEvent(name: string, date: string){
+    const id = crypto.randomUUID();
+    await executeQuery("INSERT INTO Events (ID, Name, Date) VALUES (?, ?, ?)", id, name, date);
+    return id;
+}
