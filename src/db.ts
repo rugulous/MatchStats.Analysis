@@ -58,7 +58,14 @@ type AppMatch = {
 
 export async function saveMatch(match: AppMatch){
     const matchId = crypto.randomUUID();
-    await executeQuery("INSERT INTO Matches (ID, HomeTeam, AwayTeam, Notes, HomeGoals, AwayGoals, HasTimestamps) VALUES (?, ?, ?, ?, ?, ?, 1)", matchId, match.homeTeam, match.awayTeam, match.notes, match.homeGoals, match.awayGoals);
+    const eventId = crypto.randomUUID();
+    const opposition = match.homeTeam.toLowerCase() == "totty" ? match.awayTeam : match.homeTeam;
+    const eventDate = new Date(match.segments.toSorted((a: AppSegment, b: AppSegment) => a.startTime - b.startTime)[0].startTime);
+
+    await Promise.all([
+        executeQuery("INSERT INTO Matches (ID, HomeTeam, AwayTeam, Notes, HomeGoals, AwayGoals, HasTimestamps, EventID) VALUES (?, ?, ?, ?, ?, ?, 1, ?)", matchId, match.homeTeam, match.awayTeam, match.notes, match.homeGoals, match.awayGoals, eventId),
+        executeQuery("INSERT INTO Events (ID, Name, Date) VALUES (?, ?, ?)", eventId, `Vs ${opposition}`, eventDate)
+    ]);
 
     for(const segment of match.segments){
         const segmentId = (await executeQuery("INSERT INTO MatchSegments (MatchId, SegmentType, StartTime) VALUES (?, ?, ?)", matchId, segment.code, segment.startTime)).insertId;
@@ -518,4 +525,22 @@ export async function addSection(name: string){
     const id = crypto.randomUUID();
     await executeQuery("INSERT INTO SquadSections (ID, Name) VALUES (?, ?)", id, name);
     return id;
+}
+
+export async function deleteMatchSegment(segmentId: string){
+    await Promise.all([
+        executeQuery("DELETE FROM MatchStats WHERE MatchSegmentID = ?", segmentId),
+        executeQuery("DELETE FROM MatchSegments WHERE ID = ?", segmentId)
+    ]);
+}
+
+export async function deleteEvent(eventId: string){
+    await Promise.all([
+        executeQuery("DELETE FROM EventAttendance WHERE EventID = ?", eventId),
+        executeQuery("DELETE FROM Events WHERE ID = ?", eventId)
+    ]);
+}
+
+export async function deleteMatch(matchId: string){
+    await executeQuery("DELETE FROM Matches WHERE ID = ?", matchId);
 }

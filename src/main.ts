@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { addPlayer, addSection, createManualMatch, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
+import { addPlayer, addSection, createManualMatch, deleteEvent, deleteMatch, deleteMatchSegment, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -454,6 +454,22 @@ app.post("/:id/attendance", async (req, res) => {
 });
 
 app.get('/:id/', (req, res) => res.redirect(`/${req.params.id}/stats`));
+
+app.delete("/:id/", async (req, res) => {
+    const match = await getMatchAndShallowSegments(req.params.id);
+    if(!match){
+        res.sendStatus(404);
+        return;
+    }
+
+    await Promise.all(match.segments.map(async seg => await deleteMatchSegment(seg.id)).concat([
+        deleteEvent(match.eventId),
+        deleteMatch(req.params.id)
+    ]));
+
+
+    res.sendStatus(204);
+});
 
 app.post("/record-match", async (req, res) => {
     const id = await saveMatch(req.body);
