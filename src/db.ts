@@ -464,10 +464,26 @@ export async function getAttendanceForSquad(squad: any[]){
     const {data} = await executeQuery("SELECT p.ID, e.ID AS EventID, ea.AttendanceStatus FROM Players p CROSS JOIN Events e LEFT OUTER JOIN EventAttendance ea ON ea.PlayerID = p.ID AND ea.EventID = e.ID ORDER BY Date");
     const attendanceMap = data.reduce((acc: {[key:string]: any}, row) => {
         if(!acc.hasOwnProperty(row.ID)){
-            acc[row.ID] = []
+            acc[row.ID] = {
+                events: [],
+                totals: {
+                    all: 0
+                }
+            }
         }
 
-        acc[row.ID].push(row.AttendanceStatus);
+        acc[row.ID].events.push(row.AttendanceStatus);
+
+        if (row.AttendanceStatus) {
+            acc[row.ID].totals.all++;
+
+            if (!acc[row.ID].totals.hasOwnProperty(row.AttendanceStatus)) {
+                acc[row.ID].totals[row.AttendanceStatus] = 0;
+            }
+
+
+            acc[row.ID].totals[row.AttendanceStatus]++;
+        }
         return acc;
     }, {});
 
