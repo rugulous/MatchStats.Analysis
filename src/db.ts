@@ -502,3 +502,12 @@ export async function getAttendanceStatuses(){
 export async function updateAttendance(eventId: string, playerId: string, attendanceStatus: string){
     await executeQuery("INSERT INTO EventAttendance (EventID, PlayerID, AttendanceStatus) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE AttendanceStatus = ?", eventId, playerId, attendanceStatus, attendanceStatus);
 }
+
+export async function addPlayer(firstName: string, lastName: string, squadSectionId: string, startDate: string){
+    const playerId = crypto.randomUUID();
+    await Promise.all([
+        executeQuery("INSERT INTO Players (ID, FirstName, LastName) VALUES (?, ?, ?)", playerId, firstName, lastName),
+        executeQuery("INSERT INTO SquadSectionPlayers (ID, SquadSectionID, PlayerID, StartDate) VALUES (UUID(), ?, ?, ?)", squadSectionId, playerId, !startDate ? new Date() : startDate)
+    ]);
+    return playerId;
+}

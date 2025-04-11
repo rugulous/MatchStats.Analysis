@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { createManualMatch, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
+import { addPlayer, createManualMatch, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -458,6 +458,12 @@ app.get('/:id/', (req, res) => res.redirect(`/${req.params.id}/stats`));
 app.post("/record-match", async (req, res) => {
     const id = await saveMatch(req.body);
     res.send(id);
+});
+
+app.post("/add-player", async (req, res) => {
+    const {fname, lname, section, startDate} = req.body;
+    await addPlayer(fname, lname, section, startDate);
+    res.redirect("/squad");
 });
 
 app.listen(parseInt(process.env.PORT ?? "3000"), () => "Listening on port 3000!");
