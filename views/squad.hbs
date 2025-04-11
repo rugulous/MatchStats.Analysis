@@ -3,11 +3,14 @@
 {{> header}}
 
 <div class="container">
+    <p><a href="/">← Back to Match List</a></p>
+
     <h2>Manage Squad</h2>
 
     <div class="my-3">
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-player">+ Add Player</button>
         <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#add-section">+ Add Section</button>
+        <a href="/squad/attendance" class="btn btn-link">View Attendance</a>
     </div>
 
     <div class="row row-cols-1 row-cols-xl-3">
@@ -24,7 +27,7 @@
                                 <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">...</button>
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item change-section" href="#">Change Section</a></li>
-                                    <li><a class="dropdown-item text-bg-danger remove" href="#">Remove Player</a></li>
+                                    {{!-- <li><a class="dropdown-item text-bg-danger remove" href="#">Remove Player</a></li> --}}
                                 </ul>
                             </div>
                         </div>

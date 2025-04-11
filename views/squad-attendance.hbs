@@ -25,10 +25,13 @@
     .attend-NA{
         font-style: italic;
         background-color: #EEE !important;
+        color: #222 !important;
     }
 </style>
 
 {{> header}}
+
+<p class="text-center"><a href="/squad">← Back to Squad List</a> | Key: {{#each statuses}} <span class="attend-{{ID}} badge">{{ID}} - {{Name}}</span>{{/each}} <span class="attend-NA badge">? - Not Recorded</span></p>
 
 <div class="table-responsive">
     <table class="table">
@@ -51,7 +54,7 @@
                         <tr>
                             <td class="stuck">{{firstName}} {{lastName}}</td>
                             {{#each attendance}}
-                            <td class="attend-{{ifNull this "NA"}}">{{ifNull this "?"}}</td>
+                                <td class="attend-{{ifNull this "NA"}}">{{ifNull this "?"}}</td>
                             {{/each}}
                         </tr>
                     {{/each}}

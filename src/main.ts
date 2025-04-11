@@ -153,13 +153,14 @@ app.get("/squad", async (_, res) => {
 });
 
 app.get("/squad/attendance", async (_, res) => {
-    const [squad, events] = await Promise.all([getSquad(), getEvents()]);
+    const [squad, events, statuses] = await Promise.all([getSquad(), getEvents(), getAttendanceStatuses()]);
     const squadWithAttendance = await getAttendanceForSquad(squad);
 
     res.render("squad-attendance.hbs", {
         title: "Attendance",
         squad: squadWithAttendance,
-        events
+        events,
+        statuses
     })
 });
 
