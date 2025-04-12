@@ -69,10 +69,7 @@ export default {
         dateOnly: (date: Date) => date.toLocaleDateString('en-GB'),
         printMomentumConfig: (momentumConfig: Record<StatType, number>) => new SafeString((Object.keys(momentumConfig) as StatType[]).map(k => `${k} = <b>${momentumConfig[k]}</b>`).join(", ")),
         calculateStatPercent: (total: number, outOf: number) => {
-            console.log(total);
-            console.log(outOf);
             const result = Math.round((total / outOf) * 100);
-            console.log(result);
             if(isNaN(result)){
                 return 0;
             }

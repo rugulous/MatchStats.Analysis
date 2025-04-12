@@ -58,14 +58,12 @@ type AppMatch = {
 
 export async function saveMatch(match: AppMatch){
     const matchId = crypto.randomUUID();
-    const eventId = crypto.randomUUID();
     const opposition = match.homeTeam.toLowerCase() == "totty" ? match.awayTeam : match.homeTeam;
     const eventDate = new Date(match.segments.toSorted((a: AppSegment, b: AppSegment) => a.startTime - b.startTime)[0].startTime);
 
-    await Promise.all([
-        executeQuery("INSERT INTO Matches (ID, HomeTeam, AwayTeam, Notes, HomeGoals, AwayGoals, HasTimestamps, EventID) VALUES (?, ?, ?, ?, ?, ?, 1, ?)", matchId, match.homeTeam, match.awayTeam, match.notes, match.homeGoals, match.awayGoals, eventId),
-        executeQuery("INSERT INTO Events (ID, Name, Date) VALUES (?, ?, ?)", eventId, `Vs ${opposition}`, eventDate)
-    ]);
+    const eventId = await createEvent(`Vs ${opposition}`, eventDate, 'M');
+
+    await executeQuery("INSERT INTO Matches (ID, HomeTeam, AwayTeam, Notes, HomeGoals, AwayGoals, HasTimestamps, EventID) VALUES (?, ?, ?, ?, ?, ?, 1, ?)", matchId, match.homeTeam, match.awayTeam, match.notes, match.homeGoals, match.awayGoals, eventId);
 
     for(const segment of match.segments){
         const segmentId = (await executeQuery("INSERT INTO MatchSegments (MatchId, SegmentType, StartTime) VALUES (?, ?, ?)", matchId, segment.code, segment.startTime)).insertId;
@@ -571,8 +569,13 @@ export async function getEventById(id: string){
     return await singleQuery("SELECT * FROM Events WHERE ID = ?", id);
 }
 
-export async function createEvent(name: string, date: string){
+export async function createEvent(name: string, date: string | Date, type: string){
     const id = crypto.randomUUID();
-    await executeQuery("INSERT INTO Events (ID, Name, Date) VALUES (?, ?, ?)", id, name, date);
+    await executeQuery("INSERT INTO Events (ID, Name, Date, EventType) VALUES (?, ?, ?, ?)", id, name, date, type);
     return id;
+}
+
+export async function getEventTypes(){
+    const {data} = await executeQuery("SELECT * FROM EventTypes WHERE IsActive = 1 ORDER BY Name");
+    return data;
 }

@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { addPlayer, addSection, changeSection, createEvent, createManualMatch, deleteEvent, deleteMatch, deleteMatchSegment, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEventById, getEvents, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
+import { addPlayer, addSection, changeSection, createEvent, createManualMatch, deleteEvent, deleteMatch, deleteMatchSegment, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEventById, getEvents, getEventTypes, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -153,14 +153,15 @@ app.get("/squad", async (_, res) => {
 });
 
 app.get("/squad/attendance", async (_, res) => {
-    const [squad, events, statuses] = await Promise.all([getSquad(), getEvents(), getAttendanceStatuses()]);
+    const [squad, events, statuses, eventTypes] = await Promise.all([getSquad(), getEvents(), getAttendanceStatuses(), getEventTypes()]);
     const squadWithAttendance = await getAttendanceForSquad(squad);
 
     res.render("squad-attendance.hbs", {
         title: "Attendance",
         squad: squadWithAttendance,
         events,
-        statuses
+        statuses,
+        eventTypes
     })
 });
 
@@ -488,8 +489,8 @@ app.post("/change-section", async (req, res) => {
 });
 
 app.post("/add-event", async (req, res) => {
-    const {name, date} = req.body;
-    const id = await createEvent(name, date);
+    const {name, date, type} = req.body;
+    const id = await createEvent(name, date, type);
     res.redirect(`/event/${id}`);
 });
 
