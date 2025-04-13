@@ -430,7 +430,7 @@ export async function getActiveMonths(){
 }
 
 export async function getSquad(){
-    const {data} = await executeQuery("SELECT ss.ID AS SquadSectionID, ss.Name AS SquadSectionName, ssp.PlayerID, p.FirstName, p.LastName FROM SquadSections ss LEFT OUTER JOIN SquadSectionPlayers ssp ON ssp.SquadSectionID = ss.ID AND ssp.IsActive = 1 LEFT OUTER JOIN Players p ON p.ID = ssp.PlayerID WHERE ss.IsActive = 1 ORDER BY  ss.ID, p.LastName, p.FirstName");
+    const {data} = await executeQuery("SELECT ss.ID AS SquadSectionID, ss.Name AS SquadSectionName, ssp.PlayerID, p.FirstName, p.LastName FROM SquadSections ss LEFT OUTER JOIN SquadSectionPlayers ssp ON ssp.SquadSectionID = ss.ID AND ssp.IsActive = 1 LEFT OUTER JOIN Players p ON p.ID = ssp.PlayerID WHERE ss.IsActive = 1 ORDER BY ss.SortID, p.LastName, p.FirstName");
 
     return Object.values(data.reduce((acc: {[key: string]: any}, row) => {
         if(!acc.hasOwnProperty(row.SquadSectionID)){
@@ -495,7 +495,7 @@ export async function getAttendanceForSquad(squad: any[]){
 }
 
 export async function getSquadForEvent(eventId: string){
-    const {data} = await executeQuery("SELECT ssp.SquadSectionID, ss.Name AS SquadSectionName, ssp.PlayerID, p.FirstName, p.LastName, ea.AttendanceStatus FROM (SELECT ID, Date FROM Events WHERE ID = ?) e CROSS JOIN Players p INNER JOIN SquadSectionPlayers ssp ON ssp.PlayerID = p.ID INNER JOIN SquadSections ss ON ss.ID = ssp.SquadSectionID LEFT JOIN EventAttendance ea ON ea.PlayerID = p.ID AND ea.EventID = e.ID WHERE e.Date BETWEEN ssp.StartDate AND IFNULL(ssp.EndDate, NOW())", eventId);
+    const {data} = await executeQuery("SELECT ssp.SquadSectionID, ss.Name AS SquadSectionName, ssp.PlayerID, p.FirstName, p.LastName, ea.AttendanceStatus FROM (SELECT ID, Date FROM Events WHERE ID = ?) e CROSS JOIN Players p INNER JOIN SquadSectionPlayers ssp ON ssp.PlayerID = p.ID INNER JOIN SquadSections ss ON ss.ID = ssp.SquadSectionID LEFT JOIN EventAttendance ea ON ea.PlayerID = p.ID AND ea.EventID = e.ID WHERE e.Date BETWEEN ssp.StartDate AND IFNULL(ssp.EndDate, NOW()) ORDER BY ss.SortID, p.LastName, p.FirstName", eventId);
 
     return Object.values(data.reduce((acc: {[key: string]: any}, row) => {
         if(!acc.hasOwnProperty(row.SquadSectionID)){
@@ -584,7 +584,7 @@ export async function getEventTypes(){
 }
 
 export async function getAttendanceSummary(){
-    const {data} = await executeQuery("SELECT p.ID, p.FirstName, p.LastName, ss.Name, e.EventType, ea.AttendanceStatus, COUNT(*) Total FROM Players p INNER JOIN (SELECT PlayerID, MIN(StartDate) AS StartDate FROM SquadSectionPlayers GROUP BY PlayerID) psd ON psd.PlayerID = p.ID INNER JOIN Events e ON e.Date >= psd.StartDate INNER JOIN SquadSectionPlayers ssp ON ssp.PlayerID = p.ID AND ssp.IsActive = 1 INNER JOIN SquadSections ss ON ss.ID = ssp.SquadSectionID LEFT OUTER JOIN EventAttendance ea ON ea.PlayerID = p.ID AND ea.EventID = e.ID GROUP BY p.ID, p.FirstName, p.LastName, ss.Name, e.EventType, ea.AttendanceStatus ORDER BY ss.ID, p.LastName, p.FirstName");
+    const {data} = await executeQuery("SELECT p.ID, p.FirstName, p.LastName, ss.Name, e.EventType, ea.AttendanceStatus, COUNT(*) Total FROM Players p INNER JOIN (SELECT PlayerID, MIN(StartDate) AS StartDate FROM SquadSectionPlayers GROUP BY PlayerID) psd ON psd.PlayerID = p.ID INNER JOIN Events e ON e.Date >= psd.StartDate INNER JOIN SquadSectionPlayers ssp ON ssp.PlayerID = p.ID AND ssp.IsActive = 1 INNER JOIN SquadSections ss ON ss.ID = ssp.SquadSectionID LEFT OUTER JOIN EventAttendance ea ON ea.PlayerID = p.ID AND ea.EventID = e.ID GROUP BY p.ID, p.FirstName, p.LastName, ss.Name, e.EventType, ea.AttendanceStatus ORDER BY ss.SortID, p.LastName, p.FirstName");
 
     return Object.values(data.reduce((acc: {[key: string]: any}, row) => {
         if(!acc.hasOwnProperty(row.ID)){
