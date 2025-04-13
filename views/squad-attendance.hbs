@@ -1,41 +1,9 @@
-<style>
-    tr {
-        min-height: 41px;
-    }
-
-    .stuck {
-        position: absolute;
-        width: 10rem;
-        left: 0;
-    }
-
-    .table-responsive {
-        margin-left: calc(10rem + 10px);
-    }
-
-    .section-row:not(:first-of-type) td {
-        padding-top: 3rem;
-    }
-
-    td:not(.stuck),
-    th:not(.stuck) {
-        text-align: center;
-        padding: .5rem;
-    }
-
-    .attend-NA {
-        font-style: italic;
-        background-color: #EEE !important;
-        color: #222 !important;
-    }
-</style>
-
 {{> header}}
 
 <div class="container">
 
     <p><a href="/squad">← Back to Squad List</a></p>
-    <h2>Attendance</h2>
+    <h2>{{title}} <small class="fs-6"><a href="attendance-detail">View Details</a></small></h2>
     <button class="btn btn-primary btn-lg mb-3" data-bs-toggle="modal" data-bs-target="#add-event">+ Add Event</button>
 
     <div class="row row-cols-1 row-cols-md-2">

@@ -153,24 +153,26 @@ app.get("/squad", async (_, res) => {
 });
 
 app.get("/squad/attendance", async (_, res) => {
-    // const [squad, events, statuses, eventTypes] = await Promise.all([getSquad(), getEvents(), getAttendanceStatuses(), getEventTypes()]);
-    // const squadWithAttendance = await getAttendanceForSquad(squad);
-
-    // res.render("squad-attendance.hbs", {
-    //     title: "Attendance",
-    //     squad: squadWithAttendance,
-    //     events,
-    //     statuses,
-    //     eventTypes
-    // })
-
     const [summary, statuses, eventTypes] = await Promise.all([getAttendanceSummary(), getAttendanceStatuses(), getEventTypes()]);
     res.render("squad-attendance", {
-        title: "Attendance",
+        title: "Attendance Summary",
         summary,
         statuses,
         eventTypes
     });
+});
+
+app.get("/squad/attendance-detail", async (_, res) => {
+    const [squad, events, statuses, eventTypes] = await Promise.all([getSquad(), getEvents(), getAttendanceStatuses(), getEventTypes()]);
+    const squadWithAttendance = await getAttendanceForSquad(squad);
+
+    res.render("squad-attendance-detail.hbs", {
+        title: "Attendance Detail",
+        squad: squadWithAttendance,
+        events,
+        statuses,
+        eventTypes
+    })
 });
 
 app.get('/:id/timeline', async (req, res) => {
