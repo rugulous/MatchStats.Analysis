@@ -38,31 +38,48 @@
     <h2>Attendance</h2>
     <button class="btn btn-primary btn-lg mb-3" data-bs-toggle="modal" data-bs-target="#add-event">+ Add Event</button>
 
-    {{#each squad}}
-    {{#if players.length}}
-    <h2>{{name}}</h2>
     <div class="row row-cols-1 row-cols-md-2">
-        {{#each players}}
-        <div>
-            <div class="card mb-3">
-                <div class="card-body">
-                    <p class="fw-bold">{{firstName}} {{lastName}}</p>
+        {{#each summary}}
+        <div class="mb-3">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <p class="fw-bold m-0">{{name}}</p>
+                    <p class="text-secondary fw-bold fst-italic">{{section}}</p>
 
-                    {{#each ../../statuses}}
-                    <div class="mb-3">
-                        <label>{{Name}} ({{ifNull (lookup ../attendance.totals ID) 0}})</label>
-                        <div class="progress" role="progressbar" aria-label="{{Name}}" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                            <div class="progress-bar attend-{{ID}}" style="width: {{calculateStatPercent (ifNull (lookup ../attendance.totals ID) 0) ../attendance.totals.all}}%"></div>
+                    <div class="row row-cols-2">
+                        <div>
+                            <p class="fs-4 mb-0{{#if (eq attendedMatches totalMatches)}} text-success{{/if}}"><b>{{attendedMatches}} / {{totalMatches}}</b></p>
+                            <small class="fst-italic">Matches Attended</small>
+                        </div>
+
+                        <div>
+                            <p class="fs-4 mb-0{{#if (eq attendedTraining totalTraining)}} text-success{{/if}}"><b>{{attendedTraining}} / {{totalTraining}}</b></p>
+                            <small class="fst-italic">Training Sessions Attended</small>
                         </div>
                     </div>
-                    {{/each}}
+
+                    <div class="row row-cols-2 mt-3">
+                        <div>
+                            <div class="list-group">
+                                {{#each missedMatchReasons}}
+                                <div class="list-group-item attend-{{ifNull @key 'NA'}}"><b>{{this}}</b> {{ifNull (lookup ../../statuses @key) 'Not Recorded'}}</div>
+                                {{/each}}
+                            </div>
+                        </div>
+                    
+                        <div>
+                            <div class="list-group">
+                                {{#each missedTrainingReasons}}
+                                <div class="list-group-item attend-{{ifNull @key 'NA'}}"><b>{{this}}</b> {{ifNull (lookup ../../statuses @key) 'Not Recorded'}}</div>
+                                {{/each}}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
         {{/each}}
     </div>
-    {{/if}}
-    {{/each}}
 </div>
 
 <form action="/add-event" method="post">

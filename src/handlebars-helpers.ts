@@ -75,5 +75,11 @@ export default {
             }
             return result;
         },
-        ifNull: (val: any, fallback: any) => val ?? fallback
+        ifNull: (val: any, fallback: any) => {
+            if(val === "null"){
+                val = null;
+            }
+            
+            return val ?? fallback;
+        }
     }

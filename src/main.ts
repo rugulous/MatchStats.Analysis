@@ -2,7 +2,7 @@ import express from 'express';
 import { engine } from 'express-handlebars';
 import path from 'path';
 import 'dotenv/config';
-import { addPlayer, addSection, changeSection, createEvent, createManualMatch, deleteEvent, deleteMatch, deleteMatchSegment, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getEventById, getEvents, getEventTypes, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
+import { addPlayer, addSection, changeSection, createEvent, createManualMatch, deleteEvent, deleteMatch, deleteMatchSegment, getActiveMonths, getAttendanceForSquad, getAttendanceStatuses, getAttendanceSummary, getEventById, getEvents, getEventTypes, getMatchAndShallowSegments, getSquad, getSquadForEvent, getStats, getStatTypes, getTimeline, listMatches, loadMatch, saveMatch, setVideoLink, setVideoOffset, updateAttendance } from './db';
 import { Data, Segment, StatType } from './types';
 
 import handlebarsHelpers from './handlebars-helpers';
@@ -153,16 +153,24 @@ app.get("/squad", async (_, res) => {
 });
 
 app.get("/squad/attendance", async (_, res) => {
-    const [squad, events, statuses, eventTypes] = await Promise.all([getSquad(), getEvents(), getAttendanceStatuses(), getEventTypes()]);
-    const squadWithAttendance = await getAttendanceForSquad(squad);
+    // const [squad, events, statuses, eventTypes] = await Promise.all([getSquad(), getEvents(), getAttendanceStatuses(), getEventTypes()]);
+    // const squadWithAttendance = await getAttendanceForSquad(squad);
 
-    res.render("squad-attendance.hbs", {
+    // res.render("squad-attendance.hbs", {
+    //     title: "Attendance",
+    //     squad: squadWithAttendance,
+    //     events,
+    //     statuses,
+    //     eventTypes
+    // })
+
+    const [summary, statuses, eventTypes] = await Promise.all([getAttendanceSummary(), getAttendanceStatuses(), getEventTypes()]);
+    res.render("squad-attendance", {
         title: "Attendance",
-        squad: squadWithAttendance,
-        events,
+        summary,
         statuses,
         eventTypes
-    })
+    });
 });
 
 app.get('/:id/timeline', async (req, res) => {

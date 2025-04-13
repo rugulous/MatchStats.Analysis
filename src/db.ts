@@ -519,7 +519,10 @@ export async function getSquadForEvent(eventId: string){
 
 export async function getAttendanceStatuses(){
     const {data} = await executeQuery("SELECT * FROM AttendanceStatuses ORDER BY Name");
-    return data;
+    return data.reduce((acc: {[key: string]: any}, row) => {
+        acc[row.ID] = row.Name;
+        return acc;
+    }, {});
 }
 
 export async function updateAttendance(eventId: string, playerId: string, attendanceStatus: string){
@@ -578,4 +581,54 @@ export async function createEvent(name: string, date: string | Date, type: strin
 export async function getEventTypes(){
     const {data} = await executeQuery("SELECT * FROM EventTypes WHERE IsActive = 1 ORDER BY Name");
     return data;
+}
+
+export async function getAttendanceSummary(){
+    const {data} = await executeQuery("SELECT p.ID, p.FirstName, p.LastName, ss.Name, e.EventType, ea.AttendanceStatus, COUNT(*) Total FROM Players p CROSS JOIN Events e INNER JOIN SquadSectionPlayers ssp ON ssp.PlayerID = p.ID AND ssp.IsActive = 1 INNER JOIN SquadSections ss ON ss.ID = ssp.SquadSectionID LEFT OUTER JOIN EventAttendance ea ON ea.PlayerID = p.ID GROUP BY p.ID, p.FirstName, p.LastName, ss.Name, e.EventType, ea.AttendanceStatus ORDER BY ss.ID, p.LastName, p.FirstName");
+
+    return Object.values(data.reduce((acc: {[key: string]: any}, row) => {
+        if(!acc.hasOwnProperty(row.ID)){
+            acc[row.ID] = {
+                name: `${row.FirstName} ${row.LastName}`.trim(),
+                section: row.Name,
+                    totalMatches: 0,
+                    attendedMatches: 0,
+                    missedMatchReasons: {},
+                    totalTraining: 0,
+                    attendedTraining: 0,
+                    missedTrainingReasons: {}
+            }
+        }
+
+        if(row.EventType == 'M'){
+            //match
+            acc[row.ID].totalMatches += row.Total;
+            if(row.AttendanceStatus == 'A'){
+                acc[row.ID].attendedMatches += row.Total;
+            } else {
+                if(!acc[row.ID].missedMatchReasons.hasOwnProperty(row.AttendanceStatus)){
+                    acc[row.ID].missedMatchReasons[row.AttendanceStatus] = 0;
+                }
+
+                acc[row.ID].missedMatchReasons[row.AttendanceStatus] += row.Total;
+            }
+        } else if(row.EventType == 'T'){
+            //training
+            acc[row.ID].totalTraining += row.Total;
+            if(row.AttendanceStatus == 'A'){
+                acc[row.ID].attendedTraining += row.Total;
+            } else {
+                if(!acc[row.ID].missedTrainingReasons.hasOwnProperty(row.AttendanceStatus)){
+                    acc[row.ID].missedTrainingReasons[row.AttendanceStatus] = 0;
+                }
+
+                acc[row.ID].missedTrainingReasons[row.AttendanceStatus] += row.Total;
+            }
+        } else {
+            //this should never happen
+            throw new Error(`Unrecognised event type '${row.EventType}'`);
+        }
+
+        return acc;
+    }, {}));
 }
