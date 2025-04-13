@@ -17,12 +17,12 @@
                     <div class="row row-cols-2">
                         <div>
                             <p class="fs-4 mb-0{{#if (eq attendedMatches totalMatches)}} text-success{{/if}}"><b>{{attendedMatches}} / {{totalMatches}}</b></p>
-                            <small class="fst-italic">Matches Attended</small>
+                            <small class="fst-italic">Matches Attended ({{calculateStatPercent attendedMatches totalMatches}}%)</small>
                         </div>
 
                         <div>
                             <p class="fs-4 mb-0{{#if (eq attendedTraining totalTraining)}} text-success{{/if}}"><b>{{attendedTraining}} / {{totalTraining}}</b></p>
-                            <small class="fst-italic">Training Sessions Attended</small>
+                            <small class="fst-italic">Training Sessions Attended ({{calculateStatPercent attendedTraining totalTraining}}%)</small>
                         </div>
                     </div>
 
