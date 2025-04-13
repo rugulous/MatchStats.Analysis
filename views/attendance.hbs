@@ -1,7 +1,7 @@
 {{> header}}
 
 <div class="container">
-    <p><a href="/squad/attendance">← Back to Attendance Grid</a></p>
+    <p><a href="/squad/attendance-detail">← Back to Attendance Grid</a></p>
 
     <h2>{{title}} Attendance</h2>
 
@@ -18,7 +18,7 @@
                         <label>Attendance Status</label>
                         <select class="form-control" name="{{id}}">
                             {{#each ../../statuses}}
-                            <option class="attend-{{ID}}" value="{{ID}}" {{#if (eq ID ../attendance)}} selected{{/if}}>{{Name}}</option>
+                            <option class="attend-{{@key}}" value="{{@key}}" {{#if (eq @key ../attendance)}} selected{{/if}}>{{this}}</option>
                             {{/each}}
                         </select>
                     </div>

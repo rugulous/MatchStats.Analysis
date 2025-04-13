@@ -376,6 +376,17 @@ app.get('/:id/graphs', async (req, res) => {
     res.render('match/graphs.hbs', {title, videoLink: data.videoLink, homeTeam: data.homeTeam, awayTeam: data.awayTeam, categories, colours: {home: homeColours, away: awayColours}, ...stats});
 });
 
+app.get('/:id/attendance', async(req, res) => {
+    const match = await getMatchAndShallowSegments(req.params.id);
+
+    if(!match){
+        res.sendStatus(404);
+        return;
+    }
+
+    res.redirect(`/event/${match.eventId}`);
+});
+
 app.get("/:id/video", async (req, res) => {
     const match = await getMatchAndShallowSegments(req.params.id);
     if(!match){
